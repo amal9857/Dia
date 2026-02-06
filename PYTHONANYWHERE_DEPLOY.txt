@@ -1,0 +1,75 @@
+# PYTHONANYWHERE DEPLOYMENT GUIDE
+# Account: Diaaa
+# Site will be: https://diaaa.pythonanywhere.com
+
+## STEP 1: LOGIN & OPEN BASH CONSOLE
+1. Go to: https://www.pythonanywhere.com
+2. Login with username: Diaaa
+3. Click "Consoles" tab
+4. Click "Bash" to open a new console
+
+## STEP 2: CLONE REPOSITORY
+Run these commands in Bash console:
+
+cd ~
+git clone https://github.com/amal9857/Dia.git
+cd Dia
+pip3 install --user -r requirements.txt
+
+## STEP 3: CREATE WEB APP
+1. Click "Web" tab at the top
+2. Click "Add a new web app" button
+3. Click "Next" for domain name (diaaa.pythonanywhere.com)
+4. Select "Flask" framework
+5. Select "Python 3.10"
+6. For path, enter: /home/Diaaa/Dia/flask_app.py
+7. Click "Next" to finish
+
+## STEP 4: CONFIGURE WSGI FILE
+1. In "Web" tab, find "Code:" section
+2. Click on the WSGI configuration file link (blue text)
+3. DELETE ALL CONTENT in the file
+4. PASTE this code:
+
+import sys
+path = '/home/Diaaa/Dia'
+if path not in sys.path:
+    sys.path.append(path)
+
+from flask_app import app as application
+
+5. Click "Save" button (top right)
+
+## STEP 5: SET STATIC FILES (IMPORTANT)
+1. In "Web" tab, scroll to "Static files:" section
+2. Click "Enter URL" and enter: /images
+3. Click "Enter path" and enter: /home/Diaaa/Dia/images
+4. Click checkmark to save
+5. Click "Add a new static file mapping"
+6. URL: /videos
+7. Path: /home/Diaaa/Dia/videos
+8. Click checkmark
+9. Click "Add a new static file mapping"
+10. URL: /static
+11. Path: /home/Diaaa/Dia
+
+## STEP 6: RELOAD WEB APP
+1. Scroll to top of "Web" tab
+2. Click green "Reload diaaa.pythonanywhere.com" button
+3. Wait 10 seconds
+
+## STEP 7: TEST YOUR SITE
+Open: https://diaaa.pythonanywhere.com
+
+## TROUBLESHOOTING
+If site doesn't work:
+1. Check error log: Click "Log files" in Web tab → Error log
+2. Make sure all paths use "Diaaa" (capital D)
+3. Make sure Flask is installed: pip3 install --user flask
+4. Reload the web app again
+
+## UPDATE SITE LATER
+To update after making changes:
+cd ~/Dia
+git pull origin main
+# Then click Reload button in Web tab
