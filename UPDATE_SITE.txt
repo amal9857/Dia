@@ -1,0 +1,10 @@
+# UPDATE PYTHONANYWHERE FILES
+
+## Run these commands in PythonAnywhere Bash Console:
+
+cd ~/Dia
+git pull origin main
+
+## Then go to Web tab and click "Reload" button
+
+## That's it! Your site will now have the latest changes.

@@ -1,0 +1,81 @@
+# COMPLETE FIX FOR PYTHONANYWHERE
+
+## THE PROBLEM: 
+PythonAnywhere created a default Flask app instead of using your files.
+
+## COMPLETE SOLUTION:
+
+### STEP 1: Delete the Default App
+1. Go to https://www.pythonanywhere.com (Login as Diaaa)
+2. Click "Web" tab
+3. Scroll to bottom
+4. Click "Delete diaaa.pythonanywhere.com" (red button)
+5. Confirm deletion
+
+### STEP 2: Update Files in Bash
+1. Click "Consoles" tab
+2. Click "Bash"
+3. Run:
+
+cd ~/Dia
+git pull origin main
+
+### STEP 3: Create New Web App (Manual Configuration)
+1. Go to "Web" tab
+2. Click "Add a new web app"
+3. Click "Next" for domain
+4. Choose "Manual configuration" (NOT Flask!)
+5. Select "Python 3.10"
+6. Click "Next"
+
+### STEP 4: Configure WSGI File
+1. In Web tab, find "Code:" section
+2. Click WSGI configuration file link
+3. DELETE ALL content
+4. PASTE EXACTLY THIS:
+
+import sys
+project_home = '/home/Diaaa/Dia'
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+from flask_app import app as application
+
+5. Click "Save"
+
+### STEP 5: Set Source Code
+1. In Web tab, find "Code:" section
+2. Click "Source code:" link or edit button
+3. Set to: /home/Diaaa/Dia
+
+### STEP 6: Set Working Directory
+1. In Web tab, find "Code:" section
+2. Set "Working directory:" to: /home/Diaaa/Dia
+
+### STEP 7: Configure Static Files
+In "Static files:" section, add these mappings:
+
+URL: /images
+Directory: /home/Diaaa/Dia/images
+
+URL: /videos  
+Directory: /home/Diaaa/Dia/videos
+
+URL: /static
+Directory: /home/Diaaa/Dia
+
+### STEP 8: Install Flask
+1. Go to "Consoles" → "Bash"
+2. Run:
+
+pip3 install --user flask
+
+### STEP 9: Reload
+1. Go to "Web" tab
+2. Click green "Reload diaaa.pythonanywhere.com" button
+3. Wait 10 seconds
+4. Open: https://diaaa.pythonanywhere.com
+
+## IT SHOULD NOW WORK!
+
+If you still see "Hello from Flask!", check the error log:
+Web tab → Log files → Error log
