@@ -1,0 +1,39 @@
+# FINAL FIX - THIS WILL WORK
+
+## On PythonAnywhere:
+
+### 1. Update Files
+Bash Console:
+cd ~/Dia
+git pull origin main
+
+### 2. Edit WSGI File
+Web tab → Click WSGI file link
+
+DELETE EVERYTHING and paste ONLY this:
+
+import sys
+sys.path.insert(0, '/home/Diaaa/Dia')
+from app import application
+
+Save it.
+
+### 3. Reload
+Click green Reload button
+
+### 4. Open Site
+https://diaaa.pythonanywhere.com
+
+## If STILL shows "Hello from Flask!":
+
+The WSGI file path is wrong. Check this:
+
+1. In Web tab, look at the WSGI file path shown
+2. It should be something like: /var/www/diaaa_pythonanywhere_com_wsgi.py
+3. Make sure you edited THAT file, not a different one
+4. The file should ONLY contain the 3 lines above
+5. Save and Reload again
+
+## Alternative - Check Error Log:
+Web tab → Log files → Error log
+Copy the error and tell me what it says.
