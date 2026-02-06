@@ -1,0 +1,65 @@
+# FIX FOR "Hello from Flask!" ERROR
+
+## The issue: PythonAnywhere is using default Flask template instead of your files
+
+## SOLUTION - Follow these exact steps:
+
+### STEP 1: Go to PythonAnywhere Web Tab
+1. Login to https://www.pythonanywhere.com (username: Diaaa)
+2. Click "Web" tab
+
+### STEP 2: Fix the WSGI Configuration File
+1. Find "Code:" section
+2. Click the WSGI configuration file link (looks like: /var/www/diaaa_pythonanywhere_com_wsgi.py)
+3. You'll see a file editor open
+
+### STEP 3: Replace ALL Content
+DELETE EVERYTHING in that file and paste ONLY this:
+
+import sys
+import os
+
+project_home = '/home/Diaaa/Dia'
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+
+from flask_app import app as application
+
+### STEP 4: Save and Reload
+1. Click "Save" button (top right)
+2. Go back to Web tab
+3. Click green "Reload diaaa.pythonanywhere.com" button
+4. Wait 10 seconds
+5. Open: https://diaaa.pythonanywhere.com
+
+## If still showing "Hello from Flask!":
+
+### Check Source Code Path:
+1. In Web tab, find "Source code:" section
+2. Make sure it shows: /home/Diaaa/Dia
+3. If not, click "Edit" and change it to: /home/Diaaa/Dia
+
+### Verify Working Directory:
+1. In Web tab, find "Working directory:" section  
+2. Set it to: /home/Diaaa/Dia
+
+### Then Reload again
+
+## ALTERNATIVE FIX - Delete and Recreate:
+
+If above doesn't work:
+
+1. In Web tab, scroll to bottom
+2. Click "Delete web app" (red button)
+3. Confirm deletion
+4. Click "Add a new web app"
+5. Choose "Manual configuration"
+6. Select "Python 3.10"
+7. In WSGI file, paste the code from STEP 3 above
+8. Set Source code to: /home/Diaaa/Dia
+9. Add static file mappings:
+   - /images → /home/Diaaa/Dia/images
+   - /videos → /home/Diaaa/Dia/videos
+10. Reload
+
+Your site should now show the actual DIA content!
