@@ -1,0 +1,25 @@
+# VIRTUAL ENVIRONMENT FIX
+
+## On PythonAnywhere Bash Console:
+
+cd ~/Dia
+python3 -m venv venv
+source venv/bin/activate
+pip install flask
+deactivate
+
+## Then in Web Tab:
+
+1. Find "Virtualenv:" section
+2. Enter this path: /home/Diaaa/Dia/venv
+3. Click checkmark to save
+
+## Make sure WSGI file has:
+
+import sys
+sys.path.insert(0, '/home/Diaaa/Dia')
+from app import application
+
+## Reload web app
+
+Done!
