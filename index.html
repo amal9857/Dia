@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIA | Exclusive Content</title>
+    <meta name="description" content="Exclusive content from Dia. Join the premium experience.">
+
+    <!-- PWA / Mobile Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#b38b59">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="images/logo.jpg">
+
+    <link rel="stylesheet" href="style.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <style>
+        /* Mobile App Feel */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Desktop Containment */
+        @media (min-width: 768px) {
+            html {
+                background: #0f0f0f;
+            }
+
+            body {
+                max-width: 480px;
+                margin: 0 auto;
+                background: #000;
+                min-height: 100vh;
+                border-left: 1px solid #222;
+                border-right: 1px solid #222;
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            }
+
+            .telegram-float {
+                right: auto;
+                left: 50%;
+                margin-left: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background Elements -->
+    <div class="bg-gradient"></div>
+    <div class="glow"></div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.jpg" alt="Dia Logo" class="logo-img">
+        </div>
+        <h1>DIA</h1>
+        <p class="subtitle">PREMIUM FOOT CONTENT</p>
+
+        <div class="socials-bar">
+            <a href="https://www.instagram.com/dia_in_style/" target="_blank" class="social-btn insta">
+                <i class="fab fa-instagram"></i> Instagram
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content: Video Gallery -->
+    <main class="gallery">
+        <!-- Content loaded dynamically from store.js -->
+    </main>
+
+    <!-- Floating Telegram Button -->
+    <a href="https://t.me/Queen_dia_fxxtz" target="_blank" class="telegram-float" title="Join Telegram">
+        <svg class="telegram-icon" viewBox="0 0 24 24">
+            <path
+                d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 11.944 0zm4.962 7.224c.1-.002.321.023.475.14a.506.506 0 0 1 .158.293c.065.562.05 1.785.05 1.785l-.038 1.353c-.015.545-.196 3.03-.522 4.654-.465 2.308-1.59 2.483-2.583 2.502-.857.017-1.428-.426-2.148-.908-.94-.63-1.472-.996-2.385-1.596-1.054-.694-.372-1.076.232-1.7.157-.162 2.895-2.65 2.948-2.707.03-.032.056-.126-.02-.192-.075-.065-.205-.038-.309-.015-.098.022-1.63 1.034-4.59 3.031-.428.296-.816.44-1.162.433-.508-.01-1.485-.285-2.212-.522-.897-.29-1.099-.443-1.066-.99.034-.567.86-1.146 2.215-1.748 6.368-2.827 10.607-4.668 12.716-5.522 1.442-.582 1.734-.866 2.062-.866z" />
+        </svg>
+    </a>
+
+    <!-- Security Modal -->
+    <div class="security-warning" id="security-warning">
+        <i class="fas fa-exclamation-triangle" style="color: var(--primary); font-size: 3rem; margin-bottom: 1rem;"></i>
+        <h2>SECURITY ALERT</h2>
+        <p>Screen recording or downloading is strictly prohibited.</p>
+        <p>IP Address Logged for Security.</p>
+        <button onclick="closeSecurityAlert()" class="btn-buy" style="margin-top: 1rem; width: auto;">I
+            Understand</button>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="payment-modal">
+        <div class="payment-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <h2>SECURE PAYMENT</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Scan to pay via GPay / UPI</p>
+
+            <div class="qr-container">
+                <!-- Using a public QR code API for the UPI link -->
+                <img id="upi-qr" src="" alt="Scan to Pay" class="qr-code">
+            </div>
+
+            <!-- GPAY BUTTON -->
+            <div style="margin: 15px 0;">
+                <button onclick="window.openGPay()"
+                    style="background: white; color: black; border: 1px solid #ddd; padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 250px; margin: 0 auto; gap: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay"
+                        style="height: 20px;">
+                    <div>Pay Now</div>
+                </button>
+            </div>
+
+            <div class="or-divider">VERIFICATION</div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">Enter UPI Ref /
+                    Transaction ID:</label>
+                <input type="text" id="txn-id-input" placeholder="e.g. 304512345678"
+                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #444; color: white; border-radius: 5px; text-align: center;">
+            </div>
+
+            <button class="btn-buy" onclick="verifyPayment()"
+                style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">
+                I have Paid (Verify Now)
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Scripts -->
+    <!-- Scripts -->
+    <script src="store.js"></script>
+    <script src="script.js"></script>
+    <!-- IOS INSTALL PROMPT (User App) -->
+    <div id="ios-install-prompt"
+        style="display:none; position: fixed; bottom: 0; left: 0; width: 100%; background: #222; border-top: 1px solid #444; padding: 20px; z-index: 99999; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);">
+        <div style="display: flex; align-items: start; gap: 15px; max-width: 480px; margin: 0 auto;">
+            <img src="images/logo.jpg" style="width: 50px; border-radius: 10px;">
+            <div style="flex: 1;">
+                <h4 style="color: white; margin: 0 0 5px 0;">Install DIA App</h4>
+                <p style="color: #aaa; font-size: 0.85rem; margin: 0;">Install this app on your iPhone for the best
+                    experience.</p>
+                <div style="margin-top: 10px; font-size: 0.85rem; color: var(--primary);">
+                    1. Tap <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Ios_share_icon.svg"
+                        style="width: 16px; vertical-align: middle; filter: invert(1);"> <strong>Share</strong><br>
+                    2. Scroll down & Tap <strong>Add to Home Screen</strong>
+                </div>
+            </div>
+            <button onclick="document.getElementById('ios-install-prompt').style.display='none'"
+                style="background: none; border: none; color: #666; font-size: 1.2rem;">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        // Check if iOS and not in standalone mode
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        if (isIos && !isInStandaloneMode) {
+            // Show prompt after small delay
+            setTimeout(() => {
+                document.getElementById('ios-install-prompt').style.display = 'block';
+            }, 2000);
+        }
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('App SW registered'))
+                    .catch(err => console.log('App SW failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

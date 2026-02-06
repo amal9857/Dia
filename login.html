@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIA | Login & Signup</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+        }
+
+        .auth-title {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        .form-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: black;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s;
+            font-size: 1rem;
+        }
+
+        .auth-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .toggle-link {
+            display: block;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .toggle-link span {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-msg {
+            color: #ff4757;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* OTP Input */
+        .otp-display {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .otp-digit {
+            width: 40px;
+            height: 50px;
+            font-size: 1.5rem;
+            text-align: center;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-gradient"></div>
+
+    <div class="auth-container">
+        <img src="images/logo.jpg" class="auth-logo">
+        <h1 class="auth-title">DIA</h1>
+
+        <!-- LOGIN FORM -->
+        <div id="login-form">
+            <p class="auth-subtitle">Login to access premium content</p>
+
+            <div class="form-group">
+                <label class="form-label">Username or Email</label>
+                <input type="text" id="login-username" class="form-input" placeholder="Enter username or email">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="login-password" class="form-input" placeholder="Enter password">
+            </div>
+
+            <div class="error-msg" id="login-error"></div>
+            <button class="auth-btn" onclick="initiateLogin()">LOGIN</button>
+
+            <div class="toggle-link" onclick="toggleAuth()">
+                Don't have an account? <span>Sign Up</span>
+            </div>
+        </div>
+
+        <!-- SIGNUP FORM -->
+        <div id="signup-form" class="hidden">
+            <p class="auth-subtitle">Create an account to join</p>
+
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="signup-username" class="form-input" placeholder="Choose username">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="signup-email" class="form-input" placeholder="email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="signup-password" class="form-input" placeholder="Create password">
+            </div>
+
+            <div class="error-msg" id="signup-error"></div>
+            <button class="auth-btn" onclick="initiateSignup()">SIGN UP</button>
+
+            <div class="toggle-link" onclick="toggleAuth()">
+                Already have an account? <span>Login</span>
+            </div>
+        </div>
+
+        <!-- VERIFICATION FORM -->
+        <div id="verify-form" class="hidden">
+            <p class="auth-subtitle">Email Verification</p>
+            <p style="color:#ddd; margin-bottom:1rem; font-size:0.9rem;">We sent a code to <span id="verify-email-text"
+                    style="color:var(--primary)"></span></p>
+
+            <div class="form-group">
+                <input type="text" id="verify-code" class="form-input" placeholder="Enter 4-digit Code" maxlength="4"
+                    style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+            </div>
+
+            <div class="error-msg" id="verify-error">Invalid Code</div>
+            <button class="auth-btn" onclick="verifyAndProceed()">VERIFY & ENTER</button>
+
+            <div class="toggle-link" onclick="cancelVerify()">
+                <span>Cancel</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="store.js"></script>
+    <script>
+        // CONFIG: Setup EmailJS
+        // Note: To make this work IRL, you need to sign up at https://www.emailjs.com/
+        // and replace the PUBLIC_KEY below.
+        (function () {
+            // Check if user has replaced the placeholder
+            const PUBLIC_KEY = "YOUR_PUBLIC_KEY_HERE";
+
+            if (PUBLIC_KEY !== "YOUR_PUBLIC_KEY_HERE") {
+                emailjs.init(PUBLIC_KEY);
+                window.EMAILJS_CONFIGURED = true;
+            } else {
+                console.log("EmailJS not configured. Falling back to simulation.");
+                window.EMAILJS_CONFIGURED = false;
+            }
+        })();
+
+        // Strong Password Regex: 
+        // At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+        const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        const PASSWORD_HINT = "Password must be 8+ chars, with Uppercase, Lowercase, Number & Special Char (@$!%*?&)";
+
+        // Check if already logged in
+        if (Store.getCurrentUser()) {
+            window.location.href = 'index.html';
+        }
+
+        let pendingUser = null; // Stores temporary user data during verification
+        let generatedCode = null;
+        let isSignup = false;
+
+        function toggleAuth() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const isLogin = !loginForm.classList.contains('hidden');
+
+            if (isLogin) {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+            } else {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            }
+            clearErrors();
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+        }
+
+        async function initiateLogin() {
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
+            clearErrors();
+
+            try {
+                // 1. Validate Credentials
+                const user = Store.validateCredentials(u, p);
+
+                // Restriction: Check if simulation says user is active elsewhere
+                // Since this is a local simulation, we can't truly check "other devices", 
+                // but we can simulate the check.
+                // In a real app, the server would return "Session Active".
+                // We will add a simple flag check if "isLoggedAlready" exists in user object.
+                // However, without a backend, we can only check localStorage on *this* browser.
+                // The user request asks to "restrict" login. 
+
+                // Let's verify if the user has an active session Token that hasn't expired (Simulated)
+                if (user.isLoggedIn) {
+                    // throw new Error("This account is already logged in on another device.");
+                    // NOTE: Usually you want to kick the other user out, or block this one.
+                    // The prompt asks to RESTRICT.
+
+                    // For this task, since we only have localStorage, we can add a property "isLoggedIn" to the user record in DB
+                    // But "isLoggedIn" would be persistent even if they just closed the tab.
+                    // So we should perform a check.
+
+                    // Let's implement the logic:
+                    // If user.isActive is true, deny login.
+                }
+
+                // Since we need to modify Store logic to handle "isActive" state
+                // We will verify this inside initiateLogin after validating credentials but BEFORE sending email code?
+                // Or maybe after verification.
+
+                // Let's assume we check it now.
+                if (user.isActiveSession) {
+                    // Allow them to "force" logout the other session? or just block?
+                    // "Restricted" implies blocking.
+                    throw new Error("Access Denied: Account is active on another device.");
+                }
+
+                // 2. Direct Login (Skip Verification)
+                Store.setSession(user);
+                window.location.href = 'index.html';
+
+            } catch (e) {
+                const err = document.getElementById('login-error');
+                err.innerText = e.message;
+                err.style.display = 'block';
+            }
+        }
+
+        async function initiateSignup() {
+            const u = document.getElementById('signup-username').value;
+            const e = document.getElementById('signup-email').value;
+            const p = document.getElementById('signup-password').value;
+            clearErrors();
+
+            // Strong Password Validation
+            if (!PASSWORD_REGEX.test(p)) {
+                showError('signup-error', PASSWORD_HINT);
+                return;
+            }
+            if (u.length < 3) {
+                showError('signup-error', "Username must be at least 3 chars");
+                return;
+            }
+            if (!e.includes('@')) {
+                showError('signup-error', "Invalid Email");
+                return;
+            }
+
+            try {
+                // 1. Direct Signup (Skip Verification)
+                const newUser = Store.registerUser(u, e, p);
+                Store.setSession(newUser);
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                showError('signup-error', err.message);
+            }
+        }
+
+        // Functions no longer needed but kept for safety if referenced elsewhere, 
+        // effectively dead code in this flow.
+        function showVerifyScreen(email) { }
+        function verifyAndProceed() { }
+        function cancelVerify() { }
+
+        function showError(id, msg) {
+            const err = document.getElementById(id);
+            err.innerText = msg;
+            err.style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>

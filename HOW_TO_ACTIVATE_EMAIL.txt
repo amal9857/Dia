@@ -1,0 +1,37 @@
+### HOW TO ACTIVATE REAL EMAILS (Free)
+
+To send real verification codes to your Gmail, we need to connect a free email service. I cannot do this automatically because it requires your account permission.
+
+**Please follow these 4 steps (Takes 2 minutes):**
+
+1.  **Sign Up**: Go to **[https://www.emailjs.com/](https://www.emailjs.com/)** and create a free account.
+2.  **Add Service**:
+    *   Click "Email Services" -> "Add New Service".
+    *   Select **Gmail**.
+    *   Click "Connect Account" (Sign in with the Gmail you want to send FROM).
+    *   Click "Create Service".
+    *   **COPY the "Service ID"** (e.g., `service_xyz`).
+
+3.  **Add Template**:
+    *   Click "Email Templates" -> "Create New Template".
+    *   **Subject**: `Your Verification Code`
+    *   **Content**: `Hello {{to_email}}, Your code is: {{verification_code}}`
+    *   Click "Save".
+    *   **COPY the "Template ID"** (e.g., `template_abc`).
+
+4.  **Get Public Key**:
+    *   Click on your Name/Avatar in the top-right -> "Dashboard" or "Account".
+    *   Look for "Public Key" (e.g., `user_123xyz`).
+    *   **COPY the Public Key**.
+
+---
+
+### **PASTE YOUR KEYS BELOW:**
+
+Once you have them, please reply to me in the chat with:
+
+**Service ID:** (paste here)
+**Template ID:** (paste here)
+**Public Key:** (paste here)
+
+I will then instantly update the code, and real emails will start working!

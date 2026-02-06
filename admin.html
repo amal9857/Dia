@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DIA Admin</title>
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="admin_manifest.json">
+    <link rel="apple-touch-icon" href="images/logo.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background: #000;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            /* App-like feel */
+        }
+
+        .app-header {
+            padding: 1.5rem;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .section-title {
+            padding: 1rem 1rem 0.5rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        /* Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Video List Styling */
+        .video-list {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .video-item {
+            background: #111;
+            border: 1px solid #333;
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .video-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .video-info {
+            flex: 1;
+        }
+
+        .video-title {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .video-meta {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-edit {
+            background: #333;
+            color: white;
+        }
+
+        .btn-delete {
+            background: rgba(220, 39, 67, 0.2);
+            color: #ff4757;
+        }
+
+        /* Order List Styling */
+        .order-item {
+            background: #111;
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-details h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .order-meta {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .order-amount {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .txn-badge {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: #fff;
+            margin-left: 5px;
+        }
+
+        .fab-add {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+            cursor: pointer;
+            z-index: 90;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: #111;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+            height: calc(70px + env(safe-area-inset-bottom));
+        }
+
+        .nav-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #111;
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 5px;
+            right: 30%;
+            width: 10px;
+            height: 10px;
+            background: #f39c12;
+            border-radius: 50%;
+            border: 2px solid #111;
+            display: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            padding: 2rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .bg-info-card {
+            background: #222;
+            border: 1px dashed #444;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        /* Message Modal (Popup) */
+        .message-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: #1a1a1a;
+            border: 1px solid var(--primary);
+            padding: 2rem;
+            border-radius: 20px;
+            z-index: 20000;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .message-modal.is-visible {
+            opacity: 1;
+            pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .msg-icon-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 1rem;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: black;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        /* DESKTOP & TABLET OPTIMIZATIONS */
+        @media (min-width: 768px) {
+            html {
+                background: #0f0f0f;
+                /* Wallpaper for Desktop */
+            }
+
+            body {
+                background: #000;
+                max-width: 480px;
+                /* Standard Mobile Width */
+                margin: 0 auto;
+                min-height: 100vh;
+                border-left: 1px solid #222;
+                border-right: 1px solid #222;
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+                user-select: text;
+                /* Enable selection on PC */
+            }
+
+            /* Center Fixed Elements */
+            .bottom-nav {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .fab-add {
+                right: auto;
+                left: 50%;
+                margin-left: 170px;
+                /* Position to the right side of the centered app */
+            }
+
+            /* Custom Scrollbar for Desktop */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #000;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #333;
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SECURITY OVERLAY -->
+    <div id="admin-login-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
+        <div
+            style="background: #111; padding: 2.5rem; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);">
+            <div style="margin-bottom: 2rem;">
+                <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Admin Access</h2>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Restricted Area</p>
+            </div>
+
+            <input type="text" id="admin-input-user" placeholder="Username"
+                style="width: 100%; padding: 12px; margin-bottom: 1rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px; outline: none;">
+
+            <input type="password" id="admin-input-pass" placeholder="Password"
+                style="width: 100%; padding: 12px; margin-bottom: 1.5rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px; outline: none;"
+                onkeypress="if(event.key === 'Enter') checkAdminAuth()">
+
+            <button onclick="checkAdminAuth()"
+                style="width: 100%; padding: 12px; background: var(--primary); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
+                Login
+            </button>
+
+            <p id="admin-login-error" style="color: #ff4757; font-size: 0.9rem; margin-top: 1rem; display: none;">
+                <i class="fas fa-exclamation-circle"></i> Invalid Credentials
+            </p>
+        </div>
+        <p id="admin-login-error" style="color: #ff4757; font-size: 0.9rem; margin-top: 1rem; display: none;">
+            <i class="fas fa-exclamation-circle"></i> Invalid Credentials
+        </p>
+    </div>
+    </div>
+
+    <!-- GENERIC APP POPUP MODAL -->
+    <div id="app-msg-modal" class="message-modal">
+        <div id="msg-icon-container" class="msg-icon-box">
+            <i id="msg-icon" class="fas fa-bell"></i>
+        </div>
+        <h3 id="msg-title" style="color: white; margin-bottom: 0.5rem;">Notification</h3>
+        <p id="msg-body" style="color: #aaa; font-size: 0.9rem; margin-bottom: 1.5rem;">Message details go here.</p>
+        <button id="msg-btn" onclick="closeAppAlert()"
+            style="width: 100%; padding: 12px; background: var(--primary); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
+            OK
+        </button>
+    </div>
+
+    <!-- IMMEDIATE SESSION CHECK -->
+    <script>
+        (function () {
+            try {
+                const session = localStorage.getItem('dia_admin_session');
+                if (session) {
+                    const now = new Date().getTime();
+                    if (now < parseInt(session)) {
+                        // Valid Session found - Hide Overlay Instantly
+                        const overlay = document.getElementById('admin-login-overlay');
+                        if (overlay) overlay.style.display = 'none';
+                    } else {
+                        // Expired
+                        localStorage.removeItem('dia_admin_session');
+                    }
+                }
+            } catch (e) {
+                console.error("Session Check Failed", e);
+            }
+        })();
+    </script>
+
+    <header class="app-header">
+        <div class="admin-title">DIA ADMIN</div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <i class="fas fa-sign-out-alt" onclick="logoutAdmin()"
+                style="font-size: 1.5rem; color: #ff4757; cursor: pointer;" title="Logout"></i>
+            <div class="user-avatar"><i class="fas fa-user-circle"
+                    style="font-size: 1.8rem; color: var(--text-muted)"></i></div>
+        </div>
+    </header>
+
+    <!-- VIEW: DASHBOARD -->
+    <div id="view-dashboard" class="view-section active">
+        <div id="dashboard-notifications" style="padding: 0 1rem; margin-top: 1rem; display: none;">
+            <!-- Pending Approval Alert -->
+        </div>
+        <div class="stat-grid">
+            <div class="stat-card" onclick="showBackgroundInfo()">
+                <div class="stat-value" id="total-revenue">₹0</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-orders">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+        <div class="section-title">Quick Actions</div>
+        <div style="padding: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <button onclick="switchTab('videos')"
+                style="padding: 1rem; background: #222; border: 1px solid #333; color: white; border-radius: 10px; cursor: pointer;">
+                <i class="fas fa-video"
+                    style="font-size: 1.5rem; color: var(--primary); margin-bottom: 5px;"></i><br>Manage Videos
+            </button>
+            <button onclick="switchTab('orders')"
+                style="padding: 1rem; background: #222; border: 1px solid #333; color: white; border-radius: 10px; cursor: pointer;">
+                <i class="fas fa-list"
+                    style="font-size: 1.5rem; color: var(--primary); margin-bottom: 5px;"></i><br>View Orders
+            </button>
+        </div>
+    </div>
+
+    <!-- VIEW: VIDEOS -->
+    <div id="view-videos" class="view-section">
+        <div class="section-title">Video Library</div>
+        <div class="video-list" id="video-list">
+            <!-- Dynamic Content -->
+        </div>
+    </div>
+
+    <!-- VIEW: ORDERS (New Separate Page) -->
+    <div id="view-orders" class="view-section">
+        <div class="section-title">Transaction History</div>
+        <div style="padding: 0 1rem; margin-bottom: 1rem;">
+            <input type="text" placeholder="Search Transaction ID..." class="form-input"
+                oninput="filterOrders(this.value)">
+        </div>
+        <div class="video-list" id="order-list">
+            <!-- Order Content -->
+        </div>
+    </div>
+
+    <!-- Global Floating Action Button -->
+    <div class="fab-add" onclick="openAddModal()">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <!-- Add/Edit Video Modal -->
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem; color: white;" id="modal-title">Add New Video</h2>
+            <input type="hidden" id="edit-video-id">
+
+            <div class="form-group">
+                <label class="form-label">Video Title</label>
+                <input type="text" id="video-title" class="form-input" placeholder="Title">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Price (₹)</label>
+                <input type="text" inputmode="numeric" id="video-price" class="form-input" placeholder="499"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Thumbnail Image</label>
+                <div
+                    style="background: #333; padding: 10px; border-radius: 5px; border: 1px dashed #666; text-align: center;">
+                    <input type="file" id="video-image-file" accept="image/*" style="display: none;"
+                        onchange="previewImage(this)">
+                    <label for="video-image-file" style="cursor: pointer; color: var(--primary); display: block;">
+                        <i class="fas fa-image" style="margin-bottom: 5px; font-size: 1.5rem;"></i><br>
+                        Click to Update Image
+                    </label>
+                    <img id="image-preview" src=""
+                        style="max-width: 100%; height: auto; margin-top: 10px; display: none; border-radius: 5px;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Video File</label>
+                <div
+                    style="background: #333; padding: 10px; border-radius: 5px; border: 1px dashed #666; text-align: center;">
+                    <input type="file" id="video-file-input" accept="video/*" style="display: none;"
+                        onchange="updateVideoLabel(this)">
+                    <label for="video-file-input" style="cursor: pointer; color: var(--text-muted); display: block;">
+                        <i class="fas fa-video" style="margin-bottom: 5px; font-size: 1.5rem;"></i><br>
+                        <span id="video-label">Click to Update Video</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Upload Progress -->
+            <div id="upload-progress-container" style="display: none; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
+                    <span id="upload-status-text"
+                        style="color: var(--text-muted); font-size: 0.8rem;">Uploading...</span>
+                    <!-- Stop Button -->
+                    <button onclick="stopUpload()"
+                        style="background: none; border: none; color: #ff4757; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+                        Stop
+                    </button>
+                    <span id="upload-percent" style="color: white; font-size: 0.8rem; margin-left: 10px;">0%</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden;">
+                    <div id="upload-bar"
+                        style="width: 0%; height: 100%; background: var(--primary); transition: width 0.1s;">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="saveVideo()" id="btn-save-video">Save Video</button>
+            <button onclick="closeModal()"
+                style="width: 100%; padding: 10px; background: transparent; color: #666; border: none; margin-top: 10px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="admin-toast" class="toast-notification" onclick="switchTab('orders'); hideToast()">
+        <div
+            style="background: var(--primary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black;">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div>
+            <div style="font-weight: bold;">New Payment Received!</div>
+            <div style="font-size: 0.8rem; color: #aaa;">Review pending approvals.</div>
+        </div>
+    </div>
+
+    <!-- BACKGROUND INFO MODAL -->
+    <div id="bg-info-modal" class="message-modal">
+        <div class="msg-icon-box" style="border-color: #666; background: rgba(255,255,255,0.1); color: white;">
+            <i class="fas fa-satellite-dish"></i>
+        </div>
+        <h3 style="color: white; margin-bottom: 0.5rem;">Background Mode</h3>
+
+        <div class="bg-info-card">
+            <p style="margin-bottom: 8px;"><strong style="color:var(--primary)">1. Minimized vs Closed:</strong><br>
+                For notifications to work, keep this app <strong>minimized</strong> in your recent apps. Do not "swipe
+                it away" or force close it.</p>
+
+            <p><strong style="color:var(--primary)">2. Why?</strong><br>
+                Since this is a client-side demo without a cloud server, the app code stops running if you fully remove
+                it from history.</p>
+        </div>
+
+        <button onclick="document.getElementById('bg-info-modal').classList.remove('is-visible')"
+            style="width: 100%; padding: 12px; background: white; color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
+            Got it
+        </button>
+    </div>
+
+    <!-- NOTIFICATION SOUND -->
+    <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+        preload="auto"></audio>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('dashboard')" id="nav-dashboard">
+            <i class="fas fa-chart-pie"></i><span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('videos')" id="nav-videos">
+            <i class="fas fa-video"></i><span>Videos</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('orders')" id="nav-orders">
+            <i class="fas fa-history"></i><span>History</span>
+            <div id="nav-badge-history" class="nav-badge"></div>
+        </div>
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-external-link-alt"></i><span>Visit Site</span>
+        </a>
+    </nav>
+
+    <script src="store.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+            renderVideoList();
+            renderOrderList();
+        });
+
+        // Check if iOS and not in standalone mode
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        if (isIos && !isInStandaloneMode) {
+            setTimeout(() => {
+                document.getElementById('ios-install-prompt').style.display = 'block';
+            }, 3000); // 3 seconds delay for admin
+        }
+
+        function switchTab(tabName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Remove active nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            // Show target view
+            document.getElementById('view-' + tabName).classList.add('active');
+
+            // Highlight nav (if it exists)
+            const navItem = document.getElementById('nav-' + tabName);
+            if (navItem) navItem.classList.add('active');
+        }
+
+        function renderDashboard() {
+            const orders = Store.getOrders();
+            const approvedOrders = orders.filter(order => order.status === 'approved');
+
+            document.getElementById('total-orders').innerText = approvedOrders.length;
+
+            // Only count APPROVED revenue
+            const revenue = approvedOrders
+                .reduce((sum, order) => sum + parseFloat(order.amount), 0);
+
+            document.getElementById('total-revenue').innerText = '₹' + revenue.toFixed(2);
+
+            // Check Pending
+            checkPendingAlerts(orders);
+        }
+
+        let lastPendingCount = 0;
+
+        function checkPendingAlerts(orders) {
+            const pendingCount = orders.filter(order => order.status === 'pending').length;
+            const notifDiv = document.getElementById('dashboard-notifications');
+            const navBadge = document.getElementById('nav-badge-history');
+
+            // --- VISUAL ALERTS ---
+            if (pendingCount > 0) {
+                if (navBadge) navBadge.style.display = 'block';
+                if (notifDiv) {
+                    notifDiv.style.display = 'block';
+                    notifDiv.innerHTML = `
+                        <div onclick="switchTab('orders')" style="background: rgba(243, 156, 18, 0.15); border: 1px solid rgba(243, 156, 18, 0.5); color: #f39c12; padding: 1rem; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; backdrop-filter: blur(5px);">
+                            <div style="display:flex; align-items:center gap:10px;">
+                                <i class="fas fa-bell" style="font-size: 1.2rem; margin-right: 10px; animation: pulse 2s infinite;"></i>
+                                <div>
+                                    <div style="font-weight: bold; font-size: 1rem;">Action Required</div>
+                                    <div style="font-size: 0.8rem; opacity: 0.8;">${pendingCount} payment(s) waiting for approval</div>
+                                </div>
+                            </div>
+                            <div style="background: #f39c12; color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                if (navBadge) navBadge.style.display = 'none';
+                if (notifDiv) notifDiv.style.display = 'none';
+            }
+
+            // --- AUDIO / POPUP / SYSTEM ALERT ---
+            // If the pending count has INCREASED, it means a new order arrived.
+            if (pendingCount > lastPendingCount) {
+                playAlertSound();
+
+                // 1. In-App Modal
+                showAppAlert(
+                    "New Approval Pending",
+                    "A new payment has been received. Please review it in the History tab.",
+                    "info",
+                    () => switchTab('orders')
+                );
+
+                // 2. System Notification (Status Bar)
+                if ("Notification" in window && Notification.permission === "granted") {
+                    try {
+                        const notif = new Notification("DIA Admin: Action Required", {
+                            body: `New Payment Received! ${pendingCount} approvals pending.`,
+                            icon: 'images/logo.jpg',
+                            badge: 'images/logo.jpg',
+                            tag: 'payment-alert'
+                        });
+                        notif.onclick = function () {
+                            window.focus();
+                            notif.close();
+                            switchTab('orders');
+                        };
+                        // navigator.serviceWorker.ready.then(reg => reg.showNotification(...)); // Alternative for PWA
+                    } catch (e) { console.error("Notif failed", e); }
+                }
+            }
+            lastPendingCount = pendingCount;
+        }
+
+        function showBackgroundInfo() {
+            document.getElementById('bg-info-modal').classList.add('is-visible');
+        }
+
+        function showToast() {
+            // Deprecated in favor of Modal
+            const toast = document.getElementById('admin-toast');
+            if (toast) {
+                toast.classList.add('show');
+                setTimeout(hideToast, 5000);
+            }
+        }
+
+        function hideToast() {
+            document.getElementById('admin-toast').classList.remove('show');
+        }
+
+        function playAlertSound() {
+            const audio = document.getElementById('alert-sound');
+            if (audio) {
+                audio.play().catch(e => console.log("Audio play blocked (user must interact first):", e));
+            }
+        }
+
+        // --- POLLING & LISTENER ---
+        // 1. Listen for storage changes in other tabs (Real-time)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'dia_orders') {
+                // Reload data to reflect changes
+                renderDashboard();
+                renderVideoList();
+                renderOrderList();
+            }
+        });
+
+        // 2. Poll every 3 seconds (Fallback)
+        setInterval(() => {
+            const currentOrders = Store.getOrders();
+            // Just running renderDashboard will run checkPendingAlerts
+            renderDashboard();
+            // Note: We don't want to re-render the whole list constantly if nothing changed,
+            // but for this simple app, re-rendering dashboard stats is cheap.
+        }, 3000);
+
+        function renderVideoList() {
+            const videos = Store.getVideos();
+            const list = document.getElementById('video-list');
+            list.innerHTML = videos.map(video => `
+                <div class="video-item">
+                    <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 5px;">
+                         ${video.videoFileName
+                    ? `<video src="videos/${video.videoFileName}" poster="${video.image}" style="width:100%; height:100%; object-fit:cover;" muted onmouseover="this.play()" onmouseout="this.pause()"></video>`
+                    : `<img src="${video.image}" class="video-thumb">`
+                }
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-meta">₹${video.price}</div>
+                        <div style="font-size:0.75rem; color:#666; margin-top:2px;">
+                            <i class="fas fa-file-video"></i> ${video.videoFileName || 'No file attached'}
+                        </div>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-action btn-edit" onclick='openEditModal(${JSON.stringify(video)})'><i class="fas fa-edit"></i></button>
+                        <button class="btn-action btn-delete" onclick="confirmDelete('${video.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderOrderList(filterText = '') {
+            const orders = Store.getOrders();
+            const list = document.getElementById('order-list');
+
+            const filtered = orders.filter(o =>
+                o.txnId.toLowerCase().includes(filterText.toLowerCase()) ||
+                o.buyerName.toLowerCase().includes(filterText.toLowerCase())
+            );
+
+            if (filtered.length > 0) {
+                list.innerHTML = filtered.map(order => `
+                    <div class="order-item" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="order-details" style="flex:1;">
+                            <h4>${order.buyerName} <span class="txn-badge">${order.txnId}</span></h4>
+                            <div style="font-size: 0.8rem; color: var(--primary); margin-bottom: 2px;">${order.email || 'No Email'}</div>
+                            <p class="order-meta">${order.videoTitle} • ${new Date(order.date).toLocaleDateString()}</p>
+                            <div style="margin-top:5px;">
+                                ${order.status === 'pending'
+                        ? '<span style="color:#f39c12; font-size:0.8rem; border:1px solid #f39c12; padding:2px 5px; border-radius:3px;">PENDING</span>'
+                        : '<span style="color:#2ecc71; font-size:0.8rem; border:1px solid #2ecc71; padding:2px 5px; border-radius:3px;">APPROVED</span>'
+                    }
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="order-amount">₹${order.amount}</div>
+                            ${order.status === 'pending'
+                        ? `<button class="btn-approve" onclick="approveOrder('${order.txnId}')">Approve</button>`
+                        : (() => {
+                            // Approved: Check 10-Day Rule (240 Hours)
+                            // User wants to DELETE ONLY AFTER 10 DAYS
+                            if (order.approvalDate) {
+                                const hoursPassed = (Date.now() - order.approvalDate) / (1000 * 60 * 60);
+                                const hoursWait = 240 - hoursPassed;
+
+                                if (hoursPassed < 240) {
+                                    // PROTECTED PERIOD
+                                    const daysLeft = Math.ceil(hoursWait / 24);
+                                    return `
+                                        <div style="font-size:0.6rem; color:#888; margin-bottom:5px;"><i class="fas fa-shield-alt"></i> Protected</div>
+                                        <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem; background: #333; color: #666; cursor: not-allowed;" onclick="showAppAlert('Protected Record', 'You cannot delete this transaction yet. Please wait ${daysLeft} more day(s).', 'warning')">
+                                            <i class="fas fa-lock"></i> Locked
+                                        </button>
+                                    `;
+                                } else {
+                                    // DELETE ALLOWED (After 10 days)
+                                    return `
+                                        <div style="font-size:0.6rem; color:#e74c3c; margin-bottom:5px;">Expired (Safe to Delete)</div>
+                                        <button class="btn-action btn-delete" style="padding: 5px 10px; font-size: 0.8rem;" onclick="deleteApprovedOrder('${order.txnId}')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    `;
+                                }
+                            }
+                            // Fallback for old orders
+                            return `<span style="color:#2ecc71"><i class="fas fa-check"></i> Done</span>`;
+                        })()
+                    }
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<div style="text-align:center; color:#555; padding:2rem;">No transactions found</div>';
+            }
+        }
+
+        function filterOrders(val) {
+            renderOrderList(val);
+        }
+
+        function deleteApprovedOrder(txnId) {
+            if (confirm(`Are you sure you want to PERMANENTLY delete transaction ${txnId}? This cannot be undone.`)) {
+                Store.deleteOrder(txnId);
+                // Refresh list
+                renderOrderList();
+                renderDashboard();
+                showAppAlert("Deleted", "Transaction history removed.", "success");
+            }
+        }
+
+        function approveOrder(txnId) {
+            // Using generic confirm before action? For app feel, we can just do it or use a custom confirm.
+            // For now, let's just make the Success a custom popup.
+            if (confirm("Confirm payment received? This will unlock the video for the user.")) {
+                Store.approveOrder(txnId);
+
+                // POPUP MESSAGE: Approval Done
+                showAppAlert(
+                    "Order Approved!",
+                    "The video has been unlocked for the user.",
+                    "success",
+                    () => renderOrderList()
+                );
+            }
+        }
+
+        // --- CUSTOM ALERT LOGIC ---
+        function showAppAlert(title, body, type = 'info', callback = null) {
+            const modal = document.getElementById('app-msg-modal');
+            const iconBox = document.getElementById('msg-icon-container');
+            const icon = document.getElementById('msg-icon');
+            const btn = document.getElementById('msg-btn');
+
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = body;
+
+            // Style based on type
+            if (type === 'success') {
+                icon.className = 'fas fa-check';
+                iconBox.style.background = 'rgba(46, 204, 113, 0.1)';
+                iconBox.style.color = '#2ecc71';
+                iconBox.style.borderColor = 'rgba(46, 204, 113, 0.3)';
+                btn.style.background = '#2ecc71';
+                btn.style.color = 'white';
+            } else {
+                // Default / Warning
+                icon.className = 'fas fa-bell';
+                iconBox.style.background = 'rgba(243, 156, 18, 0.1)';
+                iconBox.style.color = 'var(--primary)';
+                iconBox.style.borderColor = 'rgba(243, 156, 18, 0.3)';
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'black';
+            }
+
+            modal.classList.add('is-visible');
+
+            // Handle Button
+            btn.onclick = function () {
+                closeAppAlert();
+                if (callback) callback();
+            };
+        }
+
+        function closeAppAlert() {
+            document.getElementById('app-msg-modal').classList.remove('is-visible');
+        }
+
+        // Modal Logic ... (Same as before)
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = "Add New Video";
+            document.getElementById('edit-video-id').value = "";
+            document.getElementById('video-title').value = "";
+            document.getElementById('video-price').value = "";
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('video-label').innerText = "Click to Select Video";
+            document.getElementById('video-modal').style.display = 'flex';
+        }
+
+        function openEditModal(video) {
+            document.getElementById('modal-title').innerText = "Edit Video";
+            document.getElementById('edit-video-id').value = video.id;
+            document.getElementById('video-title').value = video.title;
+            document.getElementById('video-price').value = video.price;
+
+            const imgPreview = document.getElementById('image-preview');
+            imgPreview.src = video.image;
+            imgPreview.style.display = 'block';
+
+            document.getElementById('video-label').innerText = "Click to Change Video (Optional)";
+            document.getElementById('video-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('video-modal').style.display = 'none';
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('image-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateVideoLabel(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('video-label').innerText = input.files[0].name;
+            }
+        }
+
+        let isUploading = false;
+        let uploadCancelled = false;
+
+        function stopUpload() {
+            if (isUploading) {
+                uploadCancelled = true;
+                const statusText = document.getElementById('upload-status-text');
+                if (statusText) {
+                    statusText.innerText = "Cancelled";
+                    statusText.style.color = "red";
+                }
+                setTimeout(() => {
+                    const btn = document.getElementById('btn-save-video');
+                    const progressContainer = document.getElementById('upload-progress-container');
+                    const bar = document.getElementById('upload-bar');
+
+                    isUploading = false;
+                    btn.disabled = false;
+                    btn.innerText = "Save Video";
+                    progressContainer.style.display = 'none';
+                    bar.style.width = '0%';
+                }, 1000);
+            }
+        }
+
+        async function saveVideo() {
+            const id = document.getElementById('edit-video-id').value;
+            const title = document.getElementById('video-title').value;
+            const price = document.getElementById('video-price').value;
+            const imageInput = document.getElementById('video-image-file');
+            const videoInput = document.getElementById('video-file-input');
+
+            if (!title || !price) return alert("Please fill Title and Price");
+
+            // --- PROGRESS SIMULATION ---
+            const btn = document.getElementById('btn-save-video');
+            const progressContainer = document.getElementById('upload-progress-container');
+            const bar = document.getElementById('upload-bar');
+            const percentDiv = document.getElementById('upload-percent');
+            const statusText = document.getElementById('upload-status-text');
+
+            // 1. Show Progress
+            isUploading = true;
+            uploadCancelled = false;
+
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            progressContainer.style.display = 'block';
+            if (statusText) {
+                statusText.innerText = "Uploading...";
+                statusText.style.color = "var(--text-muted)";
+            }
+
+            // Simulate Upload (0 to 100%)
+            for (let i = 0; i <= 100; i += 2) {
+                if (uploadCancelled) return; // Stop if cancelled
+
+                bar.style.width = i + '%';
+                percentDiv.innerText = i + '%';
+                await new Promise(r => setTimeout(r, 80)); // Slower Delay
+            }
+
+            if (uploadCancelled) return;
+            isUploading = false;
+            // ---------------------------
+
+            const processSave = async (imageBase64) => {
+                const videoData = {
+                    title,
+                    price: parseFloat(price)
+                };
+
+                // ID Generation
+                const videoId = id || 'video_' + Date.now();
+                videoData.id = videoId;
+                if (!id) videoData.views = 0;
+
+                if (imageBase64) videoData.image = imageBase64;
+
+                // HANDLE VIDEO FILE (STORE IN DB)
+                if (videoInput.files[0]) {
+                    const file = videoInput.files[0];
+                    videoData.videoFileName = file.name;
+                    videoData.hasLocalFile = true; // Flag for player to check DB
+
+                    try {
+                        await Store.saveVideoFile(videoId, file);
+                        console.log("Video saved to Local DB");
+                    } catch (e) {
+                        alert("Error saving video file: " + e.message);
+                        return; // Stop save
+                    }
+                }
+
+                if (id) {
+                    Store.updateVideo(id, videoData);
+                    showAppAlert("Video Updated!", "Content saved successfully.");
+                } else {
+                    if (!imageBase64) {
+                        // Reset UI if validation fails
+                        btn.disabled = false;
+                        btn.innerText = "Save Video";
+                        progressContainer.style.display = 'none';
+                        return alert("Thumbnail is required for new videos");
+                    }
+                    Store.addVideo(videoData);
+                    showAppAlert("Video Added!", "Video file saved to App Storage.");
+                }
+                closeModal();
+                switchTab('videos');
+                renderVideoList();
+
+                // Reset UI
+                btn.disabled = false;
+                btn.innerText = "Save Video";
+                progressContainer.style.display = 'none';
+                bar.style.width = '0%';
+            };
+
+            if (imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) { processSave(e.target.result); };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                processSave(null);
+            }
+        }
+
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this video?")) {
+                Store.deleteVideo(id);
+                renderVideoList();
+            }
+        }
+
+        function checkAdminAuth() {
+            const u = document.getElementById('admin-input-user').value.trim();
+            const p = document.getElementById('admin-input-pass').value.trim();
+            const errorMsg = document.getElementById('admin-login-error');
+
+            if (u === 'Dia' && p === 'Bull2025') {
+                // Set Session for 6 Months (180 days)
+                const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
+                localStorage.setItem('dia_admin_session', expiry);
+
+                // REQUEST NOTIFICATION PERMISSION
+                if ("Notification" in window) {
+                    Notification.requestPermission();
+                }
+
+                const overlay = document.getElementById('admin-login-overlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+            } else {
+                errorMsg.style.display = 'block';
+                // Optional: Shake effect could be added here
+                document.getElementById('admin-input-pass').value = '';
+            }
+        }
+
+        function logoutAdmin() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem('dia_admin_session');
+                window.location.reload();
+            }
+        }
+
+    </script>
+
+    <!-- IOS INSTALL PROMPT (Admin App) -->
+    <div id="ios-install-prompt"
+        style="display:none; position: fixed; bottom: 0; left: 0; width: 100%; background: #222; border-top: 1px solid #444; padding: 20px; z-index: 99999; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);">
+        <div style="display: flex; align-items: start; gap: 15px; max-width: 480px; margin: 0 auto;">
+            <img src="images/logo.jpg" style="width: 50px; border-radius: 10px;">
+            <div style="flex: 1;">
+                <h4 style="color: white; margin: 0 0 5px 0;">Install Admin App</h4>
+                <p style="color: #aaa; font-size: 0.85rem; margin: 0;">Add to Home Screen for fullscreen access.</p>
+                <div style="margin-top: 10px; font-size: 0.85rem; color: var(--primary);">
+                    1. Tap <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Ios_share_icon.svg"
+                        style="width: 16px; vertical-align: middle; filter: invert(1);"> <strong>Share</strong><br>
+                    2. Scroll down & Tap <strong>Add to Home Screen</strong>
+                </div>
+            </div>
+            <button onclick="document.getElementById('ios-install-prompt').style.display='none'"
+                style="background: none; border: none; color: #666; font-size: 1.2rem;">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        // PWA Service Worker Registration & Background Sync
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./admin_sw.js')
+                    .then(async (reg) => {
+                        console.log('Admin SW registered');
+
+                        // Try to Register Periodic Sync (Background Poll)
+                        if ('periodicSync' in reg) {
+                            try {
+                                const status = await navigator.permissions.query({
+                                    name: 'periodic-background-sync',
+                                });
+
+                                if (status.state === 'granted') {
+                                    await reg.periodicSync.register('poll-orders', {
+                                        minInterval: 60 * 60 * 1000,
+                                    });
+                                }
+                            } catch (e) {
+                                console.log('Periodic Sync not fully supported');
+                            }
+                        }
+                    })
+                    .catch(err => console.log('Admin SW failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
