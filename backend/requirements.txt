@@ -1,4 +1,4 @@
-Django==6.0.2
+Django==5.1.5
 djangorestframework==3.16.1
 django-cors-headers==4.9.0
-Pillow==12.1.0
+Pillow==11.0.0
