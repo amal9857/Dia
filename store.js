@@ -1,5 +1,5 @@
 // Django API Configuration
-const API_URL = 'http://localhost:8000/api';
+const API_URL = window.location.origin + '/api';
 
 const DB_KEYS = {
     ORDERS: 'dia_orders',
@@ -18,8 +18,8 @@ const Store = {
                 id: v.id.toString(),
                 title: v.title,
                 price: parseFloat(v.price),
-                image: `http://localhost:8000${v.image}`,
-                videoFileName: `http://localhost:8000${v.video_file}`,
+                image: window.location.origin + v.image,
+                videoFileName: window.location.origin + v.video_file,
                 views: v.views
             }));
         } catch (error) {
