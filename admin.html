@@ -1268,12 +1268,12 @@
             const p = document.getElementById('admin-input-pass').value.trim();
             const errorMsg = document.getElementById('admin-login-error');
 
-            if (u === 'Dia' && p === 'Bull2025') {
-                // Set Session for 6 Months (180 days)
+            console.log('Login attempt:', u, p); // Debug
+
+            if (u === 'admin' && p === 'Adsfsfs3132!@#$$SDQ3ed') {
                 const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
                 localStorage.setItem('dia_admin_session', expiry);
 
-                // REQUEST NOTIFICATION PERMISSION
                 if ("Notification" in window) {
                     Notification.requestPermission();
                 }
@@ -1285,7 +1285,6 @@
                 }, 500);
             } else {
                 errorMsg.style.display = 'block';
-                // Optional: Shake effect could be added here
                 document.getElementById('admin-input-pass').value = '';
             }
         }
