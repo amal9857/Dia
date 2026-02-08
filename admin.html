@@ -465,7 +465,7 @@
                 style="width: 100%; padding: 12px; margin-bottom: 1.5rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px;"
                 onkeypress="if(event.key === 'Enter') checkAdminAuth()">
 
-            <button onclick="checkAdminAuth()"
+            <button id="admin-login-btn"
                 style="width: 100%; padding: 12px; background: var(--primary); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">Login</button>
 
             <p id="admin-login-error" style="color: #ff4757; font-size: 0.9rem; margin-top: 1rem; display: none;"><i
@@ -1429,10 +1429,10 @@
         window.logoutAdmin = logoutAdmin;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Re-bind login button just in case
-            const overlayBtn = document.querySelector('#admin-login-overlay button');
-            if (overlayBtn) {
-                overlayBtn.onclick = checkAdminAuth;
+            // Bind login button
+            const loginBtn = document.getElementById('admin-login-btn');
+            if (loginBtn) {
+                loginBtn.onclick = checkAdminAuth;
             }
         });
     </script>
