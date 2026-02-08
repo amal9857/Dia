@@ -501,16 +501,23 @@
         (function () {
             try {
                 const session = localStorage.getItem('dia_admin_session');
+                const overlay = document.getElementById('admin-login-overlay');
+                
                 if (session) {
                     const now = new Date().getTime();
                     if (now < parseInt(session)) {
-                        // Valid Session found - Hide Overlay Instantly
-                        const overlay = document.getElementById('admin-login-overlay');
-                        if (overlay) overlay.style.display = 'none';
+                        // Valid Session - Hide Overlay
+                        if (overlay) {
+                            overlay.style.display = 'none';
+                            overlay.remove(); // Remove completely
+                        }
                     } else {
                         // Expired
                         localStorage.removeItem('dia_admin_session');
                     }
+                } else {
+                    // No session - show overlay
+                    if (overlay) overlay.style.display = 'flex';
                 }
             } catch (e) {
                 console.error("Session Check Failed", e);
@@ -1268,8 +1275,6 @@
             const p = document.getElementById('admin-input-pass').value.trim();
             const errorMsg = document.getElementById('admin-login-error');
 
-            console.log('Login attempt:', u, p); // Debug
-
             if (u === 'admin' && p === 'Adsfsfs3132!@#$$SDQ3ed') {
                 const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
                 localStorage.setItem('dia_admin_session', expiry);
@@ -1279,10 +1284,8 @@
                 }
 
                 const overlay = document.getElementById('admin-login-overlay');
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 500);
+                overlay.style.display = 'none';
+                overlay.remove(); // Remove completely
             } else {
                 errorMsg.style.display = 'block';
                 document.getElementById('admin-input-pass').value = '';
