@@ -27,6 +27,8 @@ import os
 router = DefaultRouter()
 router.register(r'videos', VideoViewSet)
 
+from videos.views import LoginView, LogoutView
+
 def serve_frontend(request, path=''):
     frontend_dir = os.path.join(settings.BASE_DIR.parent)
     if path == '' or path == '/':
@@ -49,6 +51,8 @@ def serve_frontend(request, path=''):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/login/', LoginView.as_view(), name='api-login'),
+    path('api/logout/', LogoutView.as_view(), name='api-logout'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('', serve_frontend),
     re_path(r'^(?!admin/|api/|media/)(.*)$', serve_frontend),
