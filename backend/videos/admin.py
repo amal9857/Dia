@@ -40,22 +40,29 @@ class OrderAdmin(admin.ModelAdmin):
 
     def status_badge(self, obj):
         if obj.status == 'approved':
-            return format_html('<span style="background: #2ecc71; color: white; padding: 3px 8px; border-radius: 4px;">Approved</span>')
-        return format_html('<span style="background: #f39c12; color: white; padding: 3px 8px; border-radius: 4px;">Pending</span>')
+            return format_html('<span class="badge badge-success"><i class="fas fa-check-circle"></i> Approved</span>')
+        return format_html('<span class="badge badge-warning"><i class="fas fa-clock"></i> Pending</span>')
     status_badge.short_description = "Status"
     status_badge.admin_order_field = 'status'
 
     def action_buttons(self, obj):
         if obj.status == 'pending':
-            return format_html('<a class="button" href="javascript:;" onclick="document.getElementById(\'approve-txn-{}\').click()">Approve</a><span style="display:none;" id="approve-txn-{}" onclick="window.location.href=\'../{}/change/\'"></span>', obj.id, obj.id, obj.id)
+            return format_html(
+                '<a class="btn btn-sm btn-success" href="javascript:;" onclick="document.getElementById(\'approve-txn-{}\').click()">'
+                '<i class="fas fa-check"></i> Approve'
+                '</a>'
+                '<span style="display:none;" id="approve-txn-{}" onclick="window.location.href=\'../{}/change/\'"></span>',
+                obj.id, obj.id, obj.id
+            )
         
         # Check 10-day lock
         if obj.approval_date:
             days_passed = (timezone.now() - obj.approval_date).days
             if days_passed < 10:
                 days_left = 10 - days_passed
-                return format_html('<span style="color:#aaa;"><i class="fas fa-lock"></i> Locked ({}d left)</span>', days_left)
-        return format_html('<span style="color:#e74c3c;">Safe to Delete</span>')
+                return format_html('<span class="text-muted"><i class="fas fa-lock"></i> Locked ({}d left)</span>', days_left)
+        
+        return format_html('<span class="text-danger"><i class="fas fa-unlock"></i> Safe to Delete</span>')
     action_buttons.short_description = "Actions"
 
     @admin.action(description='Approve selected orders')
