@@ -51,5 +51,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('', serve_frontend),
-    re_path(r'^(?!admin|api|media)(.*)$', serve_frontend),
+    re_path(r'^(?!admin/|api/|media/)(.*)$', serve_frontend),
 ]
