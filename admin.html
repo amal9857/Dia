@@ -903,8 +903,13 @@
         }, 3000);
 
         function renderVideoList() {
+            const list = document.getElementById('video-list');
+
             Store.getVideos().then(videos => {
-                const list = document.getElementById('video-list');
+                if (!videos || videos.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; color:#555; padding:2rem;">No videos found</div>';
+                    return;
+                }
                 list.innerHTML = videos.map(video => `
                 <div class="video-item">
                     <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 5px;">
@@ -926,8 +931,99 @@
                     </div>
                 </div>
             `).join('');
+            }).catch(err => {
+                console.error("Error rendering videos:", err);
+                list.innerHTML = '<div style="text-align:center; color:red; padding:1rem;">Error loading videos</div>';
             });
         }
+
+        async function checkAdminAuth() {
+            try {
+                const u = document.getElementById('admin-input-user').value.trim();
+                const p = document.getElementById('admin-input-pass').value.trim();
+                const errorMsg = document.getElementById('admin-login-error');
+                const submitBtn = document.querySelector('#admin-login-overlay button');
+
+                if (!u || !p) {
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter Username & Password';
+                    return;
+                }
+
+                // Disable button during request
+                if (submitBtn) {
+                    submitBtn.innerText = "Checking...";
+                    submitBtn.disabled = true;
+                }
+
+                try {
+                    const response = await fetch('/api/login/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: u, password: p })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.status === 'success') {
+                        // Success
+                        const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
+                        localStorage.setItem('dia_admin_session', expiry);
+
+                        if ("Notification" in window) {
+                            Notification.requestPermission();
+                        }
+
+                        const overlay = document.getElementById('admin-login-overlay');
+                        if (overlay) {
+                            overlay.style.display = 'none';
+                            overlay.remove();
+                        }
+                    } else {
+                        throw new Error(data.message || 'Login failed');
+                    }
+                } catch (error) {
+                    console.error('Login Error:', error);
+
+                    // Fallback for local testing
+                    if (u === 'admin' && p === 'Adsfsfs3132!@#$$SDQ3ed') {
+                        const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
+                        localStorage.setItem('dia_admin_session', expiry);
+                        const overlay = document.getElementById('admin-login-overlay');
+                        if (overlay) {
+                            overlay.style.display = 'none';
+                            overlay.remove();
+                        }
+                        return;
+                    }
+
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid Credentials';
+                    document.getElementById('admin-input-pass').value = '';
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.innerText = "Login";
+                        submitBtn.disabled = false;
+                    }
+                }
+            } catch (fatalError) {
+                alert("Critical Error: " + fatalError.message);
+                console.error(fatalError);
+            }
+        }
+        window.checkAdminAuth = checkAdminAuth;
+
+        async function logoutAdmin() {
+            if (confirm("Are you sure you want to logout?")) {
+                try {
+                    await fetch('/api/logout/', { method: 'POST' });
+                } catch (e) { console.error(e); }
+
+                localStorage.removeItem('dia_admin_session');
+                window.location.reload();
+            }
+        }
+        window.logoutAdmin = logoutAdmin;
 
         function renderOrderList(filterText = '') {
             const orders = Store.getOrders();
@@ -1247,88 +1343,7 @@
             }
         }
 
-        async function checkAdminAuth() {
-            const u = document.getElementById('admin-input-user').value.trim();
-            const p = document.getElementById('admin-input-pass').value.trim();
-            const errorMsg = document.getElementById('admin-login-error');
-            const submitBtn = document.querySelector('#admin-login-overlay button');
 
-            if (!u || !p) {
-                errorMsg.style.display = 'block';
-                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter Username & Password';
-                return;
-            }
-
-            // Disable button during request
-            if (submitBtn) {
-                submitBtn.innerText = "Checking...";
-                submitBtn.disabled = true;
-            }
-
-            try {
-                const response = await fetch('/api/login/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.status === 'success') {
-                    // Success
-                    const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
-                    localStorage.setItem('dia_admin_session', expiry);
-
-                    if ("Notification" in window) {
-                        Notification.requestPermission();
-                    }
-
-                    const overlay = document.getElementById('admin-login-overlay');
-                    if (overlay) {
-                        overlay.style.display = 'none';
-                        overlay.remove();
-                    }
-                } else {
-                    // Failed
-                    throw new Error(data.message || 'Login failed');
-                }
-            } catch (error) {
-                console.error('Login Error:', error);
-
-                // Fallback for local testing (if API is unreachable, try hardcoded)
-                // Remove this in production if needed, but keeps backward compat for now
-                if (u === 'admin' && p === 'Adsfsfs3132!@#$$SDQ3ed') {
-                    const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
-                    localStorage.setItem('dia_admin_session', expiry);
-                    const overlay = document.getElementById('admin-login-overlay');
-                    if (overlay) {
-                        overlay.style.display = 'none';
-                        overlay.remove();
-                    }
-                    return;
-                }
-
-                errorMsg.style.display = 'block';
-                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid Credentials';
-                document.getElementById('admin-input-pass').value = '';
-            } finally {
-                if (submitBtn) {
-                    submitBtn.innerText = "Login";
-                    submitBtn.disabled = false;
-                }
-            }
-        }
-
-        async function logoutAdmin() {
-            if (confirm("Are you sure you want to logout?")) {
-                try {
-                    await fetch('/api/logout/', { method: 'POST' });
-                } catch (e) { console.error(e); }
-
-                localStorage.removeItem('dia_admin_session');
-                window.location.reload();
-            }
-        }
 
     </script>
 
