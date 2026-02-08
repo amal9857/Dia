@@ -710,6 +710,59 @@
 
     <script src="store.js"></script>
     <script>
+        // Django API Configuration
+        const API_URL = window.location.origin + '/api';
+        
+        // Override Store.getVideos to fetch from Django
+        const OriginalStore = { ...Store };
+        
+        Store.getVideos = async function() {
+            try {
+                const response = await fetch(`${API_URL}/videos/`);
+                const videos = await response.json();
+                return videos.map(v => ({
+                    id: v.id.toString(),
+                    title: v.title,
+                    price: parseFloat(v.price),
+                    image: window.location.origin + v.image,
+                    videoFileName: v.video_file,
+                    views: v.views
+                }));
+            } catch (error) {
+                console.error('Error fetching videos:', error);
+                return [];
+            }
+        };
+        
+        Store.addVideo = async function(videoData) {
+            const formData = new FormData();
+            formData.append('title', videoData.title);
+            formData.append('price', videoData.price);
+            
+            // Convert base64 image to blob
+            if (videoData.image) {
+                const imageBlob = await fetch(videoData.image).then(r => r.blob());
+                formData.append('image', imageBlob, 'thumbnail.jpg');
+            }
+            
+            // Get video file from input
+            const videoInput = document.getElementById('video-file-input');
+            if (videoInput.files[0]) {
+                formData.append('video_file', videoInput.files[0]);
+            }
+            
+            const response = await fetch(`${API_URL}/videos/`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) throw new Error('Upload failed');
+        };
+        
+        Store.deleteVideo = async function(id) {
+            await fetch(`${API_URL}/videos/${id}/`, { method: 'DELETE' });
+        };
+        
         document.addEventListener('DOMContentLoaded', () => {
             renderDashboard();
             renderVideoList();
@@ -867,9 +920,9 @@
         }, 3000);
 
         function renderVideoList() {
-            const videos = Store.getVideos();
-            const list = document.getElementById('video-list');
-            list.innerHTML = videos.map(video => `
+            Store.getVideos().then(videos => {
+                const list = document.getElementById('video-list');
+                list.innerHTML = videos.map(video => `
                 <div class="video-item">
                     <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 5px;">
                          ${video.videoFileName
