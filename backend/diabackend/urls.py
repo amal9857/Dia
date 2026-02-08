@@ -37,6 +37,7 @@ def serve_frontend(request, path='index.html'):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('', serve_frontend),
     path('<path:path>', serve_frontend),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
