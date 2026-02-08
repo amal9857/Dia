@@ -33,7 +33,17 @@ def serve_frontend(request, path=''):
         path = 'index.html'
     file_path = os.path.join(frontend_dir, path)
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        return FileResponse(open(file_path, 'rb'))
+        response = FileResponse(open(file_path, 'rb'))
+        # Set correct content types
+        if path.endswith('.css'):
+            response['Content-Type'] = 'text/css'
+        elif path.endswith('.js'):
+            response['Content-Type'] = 'application/javascript'
+        elif path.endswith('.jpg') or path.endswith('.jpeg'):
+            response['Content-Type'] = 'image/jpeg'
+        elif path.endswith('.png'):
+            response['Content-Type'] = 'image/png'
+        return response
     return FileResponse(open(os.path.join(frontend_dir, 'index.html'), 'rb'))
 
 urlpatterns = [
