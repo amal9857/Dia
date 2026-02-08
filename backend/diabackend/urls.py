@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
@@ -27,10 +27,12 @@ import os
 router = DefaultRouter()
 router.register(r'videos', VideoViewSet)
 
-def serve_frontend(request, path='index.html'):
+def serve_frontend(request, path=''):
     frontend_dir = os.path.join(settings.BASE_DIR.parent)
+    if path == '' or path == '/':
+        path = 'index.html'
     file_path = os.path.join(frontend_dir, path)
-    if os.path.exists(file_path):
+    if os.path.exists(file_path) and os.path.isfile(file_path):
         return FileResponse(open(file_path, 'rb'))
     return FileResponse(open(os.path.join(frontend_dir, 'index.html'), 'rb'))
 
@@ -38,6 +40,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
-    path('', serve_frontend),
-    path('<path:path>', serve_frontend),
+    re_path(r'^(?!admin|api|media).*$', serve_frontend),
 ]
