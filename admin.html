@@ -451,31 +451,18 @@
 
 <body>
     <!-- SECURITY OVERLAY -->
-    <div id="admin-login-overlay"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
-        <div
-            style="background: #111; padding: 2.5rem; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);">
-            <div style="margin-bottom: 2rem;">
-                <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
-                <h2 style="color: white; margin: 0; font-size: 1.5rem;">Admin Access</h2>
-                <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Restricted Area</p>
-            </div>
+    <div id="admin-login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: none;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 2.5rem; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 350px; text-align: center;">
+            <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h2 style="color: white; margin: 0 0 2rem 0; font-size: 1.5rem;">Admin Access</h2>
 
-            <input type="text" id="admin-input-user" placeholder="Username"
-                style="width: 100%; padding: 12px; margin-bottom: 1rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px; outline: none;">
+            <input type="text" id="admin-input-user" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 1rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px;">
 
-            <input type="password" id="admin-input-pass" placeholder="Password"
-                style="width: 100%; padding: 12px; margin-bottom: 1.5rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px; outline: none;"
-                onkeypress="if(event.key === 'Enter') checkAdminAuth()">
+            <input type="password" id="admin-input-pass" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 1.5rem; background: #222; border: 1px solid #333; color: white; border-radius: 8px;" onkeypress="if(event.key === 'Enter') checkAdminAuth()">
 
-            <button onclick="checkAdminAuth()"
-                style="width: 100%; padding: 12px; background: var(--primary); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
-                Login
-            </button>
+            <button onclick="checkAdminAuth()" style="width: 100%; padding: 12px; background: var(--primary); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">Login</button>
 
-            <p id="admin-login-error" style="color: #ff4757; font-size: 0.9rem; margin-top: 1rem; display: none;">
-                <i class="fas fa-exclamation-circle"></i> Invalid Credentials
-            </p>
+            <p id="admin-login-error" style="color: #ff4757; font-size: 0.9rem; margin-top: 1rem; display: none;"><i class="fas fa-exclamation-circle"></i> Invalid Credentials</p>
         </div>
     </div>
 
@@ -492,33 +479,19 @@
         </button>
     </div>
 
-    <!-- IMMEDIATE SESSION CHECK -->
     <script>
-        (function () {
-            try {
-                const session = localStorage.getItem('dia_admin_session');
-                const overlay = document.getElementById('admin-login-overlay');
-                
-                if (session) {
-                    const now = new Date().getTime();
-                    if (now < parseInt(session)) {
-                        // Valid Session - Hide Overlay
-                        if (overlay) {
-                            overlay.style.display = 'none';
-                            overlay.remove(); // Remove completely
-                        }
-                    } else {
-                        // Expired
-                        localStorage.removeItem('dia_admin_session');
-                    }
-                } else {
-                    // No session - show overlay
-                    if (overlay) overlay.style.display = 'flex';
-                }
-            } catch (e) {
-                console.error("Session Check Failed", e);
-            }
-        })();
+        // Check session FIRST
+        const session = localStorage.getItem('dia_admin_session');
+        const overlay = document.getElementById('admin-login-overlay');
+        
+        if (session && new Date().getTime() < parseInt(session)) {
+            // Valid session - don't show overlay
+            if (overlay) overlay.style.display = 'none';
+        } else {
+            // No valid session - show overlay
+            localStorage.removeItem('dia_admin_session');
+            if (overlay) overlay.style.display = 'block';
+        }
     </script>
 
     <header class="app-header">
