@@ -926,19 +926,20 @@
                     </div>
                 </div>
             `).join('');
-            }
+            });
+        }
 
         function renderOrderList(filterText = '') {
-                    const orders = Store.getOrders();
-                    const list = document.getElementById('order-list');
+            const orders = Store.getOrders();
+            const list = document.getElementById('order-list');
 
-                    const filtered = orders.filter(o =>
-                        o.txnId.toLowerCase().includes(filterText.toLowerCase()) ||
-                        o.buyerName.toLowerCase().includes(filterText.toLowerCase())
-                    );
+            const filtered = orders.filter(o =>
+                o.txnId.toLowerCase().includes(filterText.toLowerCase()) ||
+                o.buyerName.toLowerCase().includes(filterText.toLowerCase())
+            );
 
-                    if (filtered.length > 0) {
-                        list.innerHTML = filtered.map(order => `
+            if (filtered.length > 0) {
+                list.innerHTML = filtered.map(order => `
                     <div class="order-item" style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="order-details" style="flex:1;">
                             <h4>${order.buyerName} <span class="txn-badge">${order.txnId}</span></h4>
@@ -946,388 +947,388 @@
                             <p class="order-meta">${order.videoTitle} • ${new Date(order.date).toLocaleDateString()}</p>
                             <div style="margin-top:5px;">
                                 ${order.status === 'pending'
-                                ? '<span style="color:#f39c12; font-size:0.8rem; border:1px solid #f39c12; padding:2px 5px; border-radius:3px;">PENDING</span>'
-                                : '<span style="color:#2ecc71; font-size:0.8rem; border:1px solid #2ecc71; padding:2px 5px; border-radius:3px;">APPROVED</span>'
-                            }
+                        ? '<span style="color:#f39c12; font-size:0.8rem; border:1px solid #f39c12; padding:2px 5px; border-radius:3px;">PENDING</span>'
+                        : '<span style="color:#2ecc71; font-size:0.8rem; border:1px solid #2ecc71; padding:2px 5px; border-radius:3px;">APPROVED</span>'
+                    }
                             </div>
                         </div>
                         <div style="text-align:right;">
                             <div class="order-amount">₹${order.amount}</div>
                             ${order.status === 'pending'
-                                ? `<button class="btn-approve" onclick="approveOrder('${order.txnId}')">Approve</button>`
-                                : (() => {
-                                    // Approved: Check 10-Day Rule (240 Hours)
-                                    // User wants to DELETE ONLY AFTER 10 DAYS
-                                    if (order.approvalDate) {
-                                        const hoursPassed = (Date.now() - order.approvalDate) / (1000 * 60 * 60);
-                                        const hoursWait = 240 - hoursPassed;
+                        ? `<button class="btn-approve" onclick="approveOrder('${order.txnId}')">Approve</button>`
+                        : (() => {
+                            // Approved: Check 10-Day Rule (240 Hours)
+                            // User wants to DELETE ONLY AFTER 10 DAYS
+                            if (order.approvalDate) {
+                                const hoursPassed = (Date.now() - order.approvalDate) / (1000 * 60 * 60);
+                                const hoursWait = 240 - hoursPassed;
 
-                                        if (hoursPassed < 240) {
-                                            // PROTECTED PERIOD
-                                            const daysLeft = Math.ceil(hoursWait / 24);
-                                            return `
+                                if (hoursPassed < 240) {
+                                    // PROTECTED PERIOD
+                                    const daysLeft = Math.ceil(hoursWait / 24);
+                                    return `
                                         <div style="font-size:0.6rem; color:#888; margin-bottom:5px;"><i class="fas fa-shield-alt"></i> Protected</div>
                                         <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem; background: #333; color: #666; cursor: not-allowed;" onclick="showAppAlert('Protected Record', 'You cannot delete this transaction yet. Please wait ${daysLeft} more day(s).', 'warning')">
                                             <i class="fas fa-lock"></i> Locked
                                         </button>
                                     `;
-                                        } else {
-                                            // DELETE ALLOWED (After 10 days)
-                                            return `
+                                } else {
+                                    // DELETE ALLOWED (After 10 days)
+                                    return `
                                         <div style="font-size:0.6rem; color:#e74c3c; margin-bottom:5px;">Expired (Safe to Delete)</div>
                                         <button class="btn-action btn-delete" style="padding: 5px 10px; font-size: 0.8rem;" onclick="deleteApprovedOrder('${order.txnId}')">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
                                     `;
-                                        }
-                                    }
-                                    // Fallback for old orders
-                                    return `<span style="color:#2ecc71"><i class="fas fa-check"></i> Done</span>`;
-                                })()
+                                }
                             }
+                            // Fallback for old orders
+                            return `<span style="color:#2ecc71"><i class="fas fa-check"></i> Done</span>`;
+                        })()
+                    }
                         </div>
                     </div>
                 `).join('');
-                    } else {
-                        list.innerHTML = '<div style="text-align:center; color:#555; padding:2rem;">No transactions found</div>';
-                    }
-                }
+            } else {
+                list.innerHTML = '<div style="text-align:center; color:#555; padding:2rem;">No transactions found</div>';
+            }
+        }
 
         function filterOrders(val) {
-                    renderOrderList(val);
-                }
+            renderOrderList(val);
+        }
 
         function deleteApprovedOrder(txnId) {
-                    if (confirm(`Are you sure you want to PERMANENTLY delete transaction ${txnId}? This cannot be undone.`)) {
-                        Store.deleteOrder(txnId);
-                        // Refresh list
-                        renderOrderList();
-                        renderDashboard();
-                        showAppAlert("Deleted", "Transaction history removed.", "success");
-                    }
-                }
+            if (confirm(`Are you sure you want to PERMANENTLY delete transaction ${txnId}? This cannot be undone.`)) {
+                Store.deleteOrder(txnId);
+                // Refresh list
+                renderOrderList();
+                renderDashboard();
+                showAppAlert("Deleted", "Transaction history removed.", "success");
+            }
+        }
 
         function approveOrder(txnId) {
-                    // Using generic confirm before action? For app feel, we can just do it or use a custom confirm.
-                    // For now, let's just make the Success a custom popup.
-                    if (confirm("Confirm payment received? This will unlock the video for the user.")) {
-                        Store.approveOrder(txnId);
+            // Using generic confirm before action? For app feel, we can just do it or use a custom confirm.
+            // For now, let's just make the Success a custom popup.
+            if (confirm("Confirm payment received? This will unlock the video for the user.")) {
+                Store.approveOrder(txnId);
 
-                        // POPUP MESSAGE: Approval Done
-                        showAppAlert(
-                            "Order Approved!",
-                            "The video has been unlocked for the user.",
-                            "success",
-                            () => renderOrderList()
-                        );
-                    }
-                }
+                // POPUP MESSAGE: Approval Done
+                showAppAlert(
+                    "Order Approved!",
+                    "The video has been unlocked for the user.",
+                    "success",
+                    () => renderOrderList()
+                );
+            }
+        }
 
         // --- CUSTOM ALERT LOGIC ---
         function showAppAlert(title, body, type = 'info', callback = null) {
-                    const modal = document.getElementById('app-msg-modal');
-                    const iconBox = document.getElementById('msg-icon-container');
-                    const icon = document.getElementById('msg-icon');
-                    const btn = document.getElementById('msg-btn');
+            const modal = document.getElementById('app-msg-modal');
+            const iconBox = document.getElementById('msg-icon-container');
+            const icon = document.getElementById('msg-icon');
+            const btn = document.getElementById('msg-btn');
 
-                    document.getElementById('msg-title').innerText = title;
-                    document.getElementById('msg-body').innerText = body;
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = body;
 
-                    // Style based on type
-                    if (type === 'success') {
-                        icon.className = 'fas fa-check';
-                        iconBox.style.background = 'rgba(46, 204, 113, 0.1)';
-                        iconBox.style.color = '#2ecc71';
-                        iconBox.style.borderColor = 'rgba(46, 204, 113, 0.3)';
-                        btn.style.background = '#2ecc71';
-                        btn.style.color = 'white';
-                    } else {
-                        // Default / Warning
-                        icon.className = 'fas fa-bell';
-                        iconBox.style.background = 'rgba(243, 156, 18, 0.1)';
-                        iconBox.style.color = 'var(--primary)';
-                        iconBox.style.borderColor = 'rgba(243, 156, 18, 0.3)';
-                        btn.style.background = 'var(--primary)';
-                        btn.style.color = 'black';
-                    }
+            // Style based on type
+            if (type === 'success') {
+                icon.className = 'fas fa-check';
+                iconBox.style.background = 'rgba(46, 204, 113, 0.1)';
+                iconBox.style.color = '#2ecc71';
+                iconBox.style.borderColor = 'rgba(46, 204, 113, 0.3)';
+                btn.style.background = '#2ecc71';
+                btn.style.color = 'white';
+            } else {
+                // Default / Warning
+                icon.className = 'fas fa-bell';
+                iconBox.style.background = 'rgba(243, 156, 18, 0.1)';
+                iconBox.style.color = 'var(--primary)';
+                iconBox.style.borderColor = 'rgba(243, 156, 18, 0.3)';
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'black';
+            }
 
-                    modal.classList.add('is-visible');
+            modal.classList.add('is-visible');
 
-                    // Handle Button
-                    btn.onclick = function () {
-                        closeAppAlert();
-                        if (callback) callback();
-                    };
-                }
+            // Handle Button
+            btn.onclick = function () {
+                closeAppAlert();
+                if (callback) callback();
+            };
+        }
 
         function closeAppAlert() {
-                    document.getElementById('app-msg-modal').classList.remove('is-visible');
-                }
+            document.getElementById('app-msg-modal').classList.remove('is-visible');
+        }
 
         // Modal Logic ... (Same as before)
         function openAddModal() {
-                    document.getElementById('modal-title').innerText = "Add New Video";
-                    document.getElementById('edit-video-id').value = "";
-                    document.getElementById('video-title').value = "";
-                    document.getElementById('video-price').value = "";
-                    document.getElementById('image-preview').style.display = 'none';
-                    document.getElementById('video-label').innerText = "Click to Select Video";
-                    document.getElementById('video-modal').style.display = 'flex';
-                }
+            document.getElementById('modal-title').innerText = "Add New Video";
+            document.getElementById('edit-video-id').value = "";
+            document.getElementById('video-title').value = "";
+            document.getElementById('video-price').value = "";
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('video-label').innerText = "Click to Select Video";
+            document.getElementById('video-modal').style.display = 'flex';
+        }
 
         function openEditModal(video) {
-                    document.getElementById('modal-title').innerText = "Edit Video";
-                    document.getElementById('edit-video-id').value = video.id;
-                    document.getElementById('video-title').value = video.title;
-                    document.getElementById('video-price').value = video.price;
+            document.getElementById('modal-title').innerText = "Edit Video";
+            document.getElementById('edit-video-id').value = video.id;
+            document.getElementById('video-title').value = video.title;
+            document.getElementById('video-price').value = video.price;
 
-                    const imgPreview = document.getElementById('image-preview');
-                    imgPreview.src = video.image;
-                    imgPreview.style.display = 'block';
+            const imgPreview = document.getElementById('image-preview');
+            imgPreview.src = video.image;
+            imgPreview.style.display = 'block';
 
-                    document.getElementById('video-label').innerText = "Click to Change Video (Optional)";
-                    document.getElementById('video-modal').style.display = 'flex';
-                }
+            document.getElementById('video-label').innerText = "Click to Change Video (Optional)";
+            document.getElementById('video-modal').style.display = 'flex';
+        }
 
         function closeModal() {
-                    document.getElementById('video-modal').style.display = 'none';
-                }
+            document.getElementById('video-modal').style.display = 'none';
+        }
 
         function previewImage(input) {
-                    if (input.files && input.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const img = document.getElementById('image-preview');
-                            img.src = e.target.result;
-                            img.style.display = 'block';
-                        };
-                        reader.readAsDataURL(input.files[0]);
-                    }
-                }
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('image-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         function updateVideoLabel(input) {
-                    if (input.files && input.files[0]) {
-                        document.getElementById('video-label').innerText = input.files[0].name;
-                    }
-                }
+            if (input.files && input.files[0]) {
+                document.getElementById('video-label').innerText = input.files[0].name;
+            }
+        }
 
         let isUploading = false;
-            let uploadCancelled = false;
+        let uploadCancelled = false;
 
-            function stopUpload() {
-                if (isUploading) {
-                    uploadCancelled = true;
-                    const statusText = document.getElementById('upload-status-text');
-                    if (statusText) {
-                        statusText.innerText = "Cancelled";
-                        statusText.style.color = "red";
-                    }
-                    setTimeout(() => {
-                        const btn = document.getElementById('btn-save-video');
-                        const progressContainer = document.getElementById('upload-progress-container');
-                        const bar = document.getElementById('upload-bar');
-
-                        isUploading = false;
-                        btn.disabled = false;
-                        btn.innerText = "Save Video";
-                        progressContainer.style.display = 'none';
-                        bar.style.width = '0%';
-                    }, 1000);
-                }
-            }
-
-            async function saveVideo() {
-                const id = document.getElementById('edit-video-id').value;
-                const title = document.getElementById('video-title').value;
-                const price = document.getElementById('video-price').value;
-                const imageInput = document.getElementById('video-image-file');
-                const videoInput = document.getElementById('video-file-input');
-
-                if (!title || !price) return alert("Please fill Title and Price");
-
-                // --- PROGRESS SIMULATION ---
-                const btn = document.getElementById('btn-save-video');
-                const progressContainer = document.getElementById('upload-progress-container');
-                const bar = document.getElementById('upload-bar');
-                const percentDiv = document.getElementById('upload-percent');
+        function stopUpload() {
+            if (isUploading) {
+                uploadCancelled = true;
                 const statusText = document.getElementById('upload-status-text');
-
-                // 1. Show Progress
-                isUploading = true;
-                uploadCancelled = false;
-
-                btn.disabled = true;
-                btn.innerText = "Processing...";
-                progressContainer.style.display = 'block';
                 if (statusText) {
-                    statusText.innerText = "Uploading...";
-                    statusText.style.color = "var(--text-muted)";
+                    statusText.innerText = "Cancelled";
+                    statusText.style.color = "red";
                 }
+                setTimeout(() => {
+                    const btn = document.getElementById('btn-save-video');
+                    const progressContainer = document.getElementById('upload-progress-container');
+                    const bar = document.getElementById('upload-bar');
 
-                // Simulate Upload (0 to 100%)
-                for (let i = 0; i <= 100; i += 2) {
-                    if (uploadCancelled) return; // Stop if cancelled
-
-                    bar.style.width = i + '%';
-                    percentDiv.innerText = i + '%';
-                    await new Promise(r => setTimeout(r, 80)); // Slower Delay
-                }
-
-                if (uploadCancelled) return;
-                isUploading = false;
-                // ---------------------------
-
-                const processSave = async (imageBase64) => {
-                    const videoData = {
-                        title,
-                        price: parseFloat(price)
-                    };
-
-                    // ID Generation
-                    const videoId = id || 'video_' + Date.now();
-                    videoData.id = videoId;
-                    if (!id) videoData.views = 0;
-
-                    if (imageBase64) videoData.image = imageBase64;
-
-                    // HANDLE VIDEO FILE (STORE IN DB)
-                    if (videoInput.files[0]) {
-                        const file = videoInput.files[0];
-                        videoData.videoFileName = file.name;
-                        videoData.hasLocalFile = true; // Flag for player to check DB
-
-                        try {
-                            await Store.saveVideoFile(videoId, file);
-                            console.log("Video saved to Local DB");
-                        } catch (e) {
-                            alert("Error saving video file: " + e.message);
-                            return; // Stop save
-                        }
-                    }
-
-                    if (id) {
-                        Store.updateVideo(id, videoData);
-                        showAppAlert("Video Updated!", "Content saved successfully.");
-                    } else {
-                        if (!imageBase64) {
-                            // Reset UI if validation fails
-                            btn.disabled = false;
-                            btn.innerText = "Save Video";
-                            progressContainer.style.display = 'none';
-                            return alert("Thumbnail is required for new videos");
-                        }
-                        Store.addVideo(videoData);
-                        showAppAlert("Video Added!", "Video file saved to App Storage.");
-                    }
-                    closeModal();
-                    switchTab('videos');
-                    renderVideoList();
-
-                    // Reset UI
+                    isUploading = false;
                     btn.disabled = false;
                     btn.innerText = "Save Video";
                     progressContainer.style.display = 'none';
                     bar.style.width = '0%';
+                }, 1000);
+            }
+        }
+
+        async function saveVideo() {
+            const id = document.getElementById('edit-video-id').value;
+            const title = document.getElementById('video-title').value;
+            const price = document.getElementById('video-price').value;
+            const imageInput = document.getElementById('video-image-file');
+            const videoInput = document.getElementById('video-file-input');
+
+            if (!title || !price) return alert("Please fill Title and Price");
+
+            // --- PROGRESS SIMULATION ---
+            const btn = document.getElementById('btn-save-video');
+            const progressContainer = document.getElementById('upload-progress-container');
+            const bar = document.getElementById('upload-bar');
+            const percentDiv = document.getElementById('upload-percent');
+            const statusText = document.getElementById('upload-status-text');
+
+            // 1. Show Progress
+            isUploading = true;
+            uploadCancelled = false;
+
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            progressContainer.style.display = 'block';
+            if (statusText) {
+                statusText.innerText = "Uploading...";
+                statusText.style.color = "var(--text-muted)";
+            }
+
+            // Simulate Upload (0 to 100%)
+            for (let i = 0; i <= 100; i += 2) {
+                if (uploadCancelled) return; // Stop if cancelled
+
+                bar.style.width = i + '%';
+                percentDiv.innerText = i + '%';
+                await new Promise(r => setTimeout(r, 80)); // Slower Delay
+            }
+
+            if (uploadCancelled) return;
+            isUploading = false;
+            // ---------------------------
+
+            const processSave = async (imageBase64) => {
+                const videoData = {
+                    title,
+                    price: parseFloat(price)
                 };
 
-                if (imageInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) { processSave(e.target.result); };
-                    reader.readAsDataURL(imageInput.files[0]);
+                // ID Generation
+                const videoId = id || 'video_' + Date.now();
+                videoData.id = videoId;
+                if (!id) videoData.views = 0;
+
+                if (imageBase64) videoData.image = imageBase64;
+
+                // HANDLE VIDEO FILE (STORE IN DB)
+                if (videoInput.files[0]) {
+                    const file = videoInput.files[0];
+                    videoData.videoFileName = file.name;
+                    videoData.hasLocalFile = true; // Flag for player to check DB
+
+                    try {
+                        await Store.saveVideoFile(videoId, file);
+                        console.log("Video saved to Local DB");
+                    } catch (e) {
+                        alert("Error saving video file: " + e.message);
+                        return; // Stop save
+                    }
+                }
+
+                if (id) {
+                    Store.updateVideo(id, videoData);
+                    showAppAlert("Video Updated!", "Content saved successfully.");
                 } else {
-                    processSave(null);
+                    if (!imageBase64) {
+                        // Reset UI if validation fails
+                        btn.disabled = false;
+                        btn.innerText = "Save Video";
+                        progressContainer.style.display = 'none';
+                        return alert("Thumbnail is required for new videos");
+                    }
+                    Store.addVideo(videoData);
+                    showAppAlert("Video Added!", "Video file saved to App Storage.");
                 }
+                closeModal();
+                switchTab('videos');
+                renderVideoList();
+
+                // Reset UI
+                btn.disabled = false;
+                btn.innerText = "Save Video";
+                progressContainer.style.display = 'none';
+                bar.style.width = '0%';
+            };
+
+            if (imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) { processSave(e.target.result); };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                processSave(null);
+            }
+        }
+
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this video?")) {
+                Store.deleteVideo(id);
+                renderVideoList();
+            }
+        }
+
+        async function checkAdminAuth() {
+            const u = document.getElementById('admin-input-user').value.trim();
+            const p = document.getElementById('admin-input-pass').value.trim();
+            const errorMsg = document.getElementById('admin-login-error');
+            const submitBtn = document.querySelector('#admin-login-overlay button');
+
+            if (!u || !p) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter Username & Password';
+                return;
             }
 
-            function confirmDelete(id) {
-                if (confirm("Are you sure you want to delete this video?")) {
-                    Store.deleteVideo(id);
-                    renderVideoList();
-                }
+            // Disable button during request
+            if (submitBtn) {
+                submitBtn.innerText = "Checking...";
+                submitBtn.disabled = true;
             }
 
-            async function checkAdminAuth() {
-                const u = document.getElementById('admin-input-user').value.trim();
-                const p = document.getElementById('admin-input-pass').value.trim();
-                const errorMsg = document.getElementById('admin-login-error');
-                const submitBtn = document.querySelector('#admin-login-overlay button');
+            try {
+                const response = await fetch('/api/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
 
-                if (!u || !p) {
-                    errorMsg.style.display = 'block';
-                    errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter Username & Password';
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    // Success
+                    const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
+                    localStorage.setItem('dia_admin_session', expiry);
+
+                    if ("Notification" in window) {
+                        Notification.requestPermission();
+                    }
+
+                    const overlay = document.getElementById('admin-login-overlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
+                        overlay.remove();
+                    }
+                } else {
+                    // Failed
+                    throw new Error(data.message || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login Error:', error);
+
+                // Fallback for local testing (if API is unreachable, try hardcoded)
+                // Remove this in production if needed, but keeps backward compat for now
+                if (u === 'admin' && p === 'Adsfsfs3132!@#$$SDQ3ed') {
+                    const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
+                    localStorage.setItem('dia_admin_session', expiry);
+                    const overlay = document.getElementById('admin-login-overlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
+                        overlay.remove();
+                    }
                     return;
                 }
 
-                // Disable button during request
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid Credentials';
+                document.getElementById('admin-input-pass').value = '';
+            } finally {
                 if (submitBtn) {
-                    submitBtn.innerText = "Checking...";
-                    submitBtn.disabled = true;
+                    submitBtn.innerText = "Login";
+                    submitBtn.disabled = false;
                 }
+            }
+        }
 
+        async function logoutAdmin() {
+            if (confirm("Are you sure you want to logout?")) {
                 try {
-                    const response = await fetch('/api/login/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: u, password: p })
-                    });
+                    await fetch('/api/logout/', { method: 'POST' });
+                } catch (e) { console.error(e); }
 
-                    const data = await response.json();
-
-                    if (response.ok && data.status === 'success') {
-                        // Success
-                        const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
-                        localStorage.setItem('dia_admin_session', expiry);
-
-                        if ("Notification" in window) {
-                            Notification.requestPermission();
-                        }
-
-                        const overlay = document.getElementById('admin-login-overlay');
-                        if (overlay) {
-                            overlay.style.display = 'none';
-                            overlay.remove();
-                        }
-                    } else {
-                        // Failed
-                        throw new Error(data.message || 'Login failed');
-                    }
-                } catch (error) {
-                    console.error('Login Error:', error);
-
-                    // Fallback for local testing (if API is unreachable, try hardcoded)
-                    // Remove this in production if needed, but keeps backward compat for now
-                    if (u === 'admin' && p === 'Adsfsfs3132!@#$$SDQ3ed') {
-                        const expiry = new Date().getTime() + (180 * 24 * 60 * 60 * 1000);
-                        localStorage.setItem('dia_admin_session', expiry);
-                        const overlay = document.getElementById('admin-login-overlay');
-                        if (overlay) {
-                            overlay.style.display = 'none';
-                            overlay.remove();
-                        }
-                        return;
-                    }
-
-                    errorMsg.style.display = 'block';
-                    errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid Credentials';
-                    document.getElementById('admin-input-pass').value = '';
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.innerText = "Login";
-                        submitBtn.disabled = false;
-                    }
-                }
+                localStorage.removeItem('dia_admin_session');
+                window.location.reload();
             }
-
-            async function logoutAdmin() {
-                if (confirm("Are you sure you want to logout?")) {
-                    try {
-                        await fetch('/api/logout/', { method: 'POST' });
-                    } catch (e) { console.error(e); }
-
-                    localStorage.removeItem('dia_admin_session');
-                    window.location.reload();
-                }
-            }
+        }
 
     </script>
 
@@ -1351,33 +1352,33 @@
     </div>
 
     <script>
-            // PWA Service Worker Registration & Background Sync
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./admin_sw.js')
-                        .then(async (reg) => {
-                            console.log('Admin SW registered');
+        // PWA Service Worker Registration & Background Sync
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./admin_sw.js')
+                    .then(async (reg) => {
+                        console.log('Admin SW registered');
 
-                            // Try to Register Periodic Sync (Background Poll)
-                            if ('periodicSync' in reg) {
-                                try {
-                                    const status = await navigator.permissions.query({
-                                        name: 'periodic-background-sync',
+                        // Try to Register Periodic Sync (Background Poll)
+                        if ('periodicSync' in reg) {
+                            try {
+                                const status = await navigator.permissions.query({
+                                    name: 'periodic-background-sync',
+                                });
+
+                                if (status.state === 'granted') {
+                                    await reg.periodicSync.register('poll-orders', {
+                                        minInterval: 60 * 60 * 1000,
                                     });
-
-                                    if (status.state === 'granted') {
-                                        await reg.periodicSync.register('poll-orders', {
-                                            minInterval: 60 * 60 * 1000,
-                                        });
-                                    }
-                                } catch (e) {
-                                    console.log('Periodic Sync not fully supported');
                                 }
+                            } catch (e) {
+                                console.log('Periodic Sync not fully supported');
                             }
-                        })
-                        .catch(err => console.log('Admin SW failed', err));
-                });
-            }
+                        }
+                    })
+                    .catch(err => console.log('Admin SW failed', err));
+            });
+        }
     </script>
 </body>
 
