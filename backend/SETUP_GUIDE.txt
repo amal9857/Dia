@@ -1,0 +1,102 @@
+# DJANGO BACKEND SETUP GUIDE
+
+## What This Does:
+- Admin uploads videos via Django Admin Panel
+- Videos stored in database (SQLite)
+- Users see videos instantly via API
+- Real database, no more LocalStorage for videos
+
+## LOCAL SETUP (Windows):
+
+### 1. Start Django Backend
+cd backend
+venv\Scripts\activate
+python manage.py runserver
+
+Backend runs at: http://localhost:8000
+
+### 2. Access Admin Panel
+URL: http://localhost:8000/admin
+Username: admin
+Password: admin123
+
+### 3. Upload Videos
+- Login to admin panel
+- Click "Videos" → "Add Video"
+- Fill in: Title, Price, Upload Image, Upload Video File
+- Click "Save"
+
+### 4. Update Frontend
+In index.html, replace:
+<script src="store.js"></script>
+
+With:
+<script src="store_api.js"></script>
+
+### 5. Open Frontend
+Open index.html in browser
+Videos from Django will appear automatically!
+
+## API ENDPOINTS:
+- GET /api/videos/ - List all videos
+- POST /api/videos/ - Create video (admin only)
+- GET /api/videos/{id}/ - Get single video
+- PUT /api/videos/{id}/ - Update video
+- DELETE /api/videos/{id}/ - Delete video
+
+## PYTHONANYWHERE DEPLOYMENT:
+
+### 1. Upload Backend to GitHub
+cd backend
+git init
+git add .
+git commit -m "Django backend"
+git remote add origin https://github.com/amal9857/Dia-Backend.git
+git push -u origin main
+
+### 2. On PythonAnywhere Bash:
+cd ~
+git clone https://github.com/amal9857/Dia-Backend.git backend
+cd backend
+python3.10 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python create_admin.py
+
+### 3. Create Web App:
+- Web tab → Add new web app
+- Manual configuration → Python 3.10
+- WSGI file:
+
+import sys
+import os
+project_home = '/home/Diaaa/backend'
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'diabackend.settings'
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+
+### 4. Set Virtualenv:
+/home/Diaaa/backend/venv
+
+### 5. Static Files:
+URL: /static/
+Directory: /home/Diaaa/backend/staticfiles
+
+URL: /media/
+Directory: /home/Diaaa/backend/media
+
+### 6. Update Frontend API URL:
+In store_api.js, change:
+const API_URL = 'https://diaaa.pythonanywhere.com/api';
+
+### 7. Reload both web apps
+
+## ADMIN PANEL ACCESS:
+https://diaaa.pythonanywhere.com/admin
+Username: admin
+Password: admin123
+
+Upload videos there, users see them instantly!
