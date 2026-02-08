@@ -1415,8 +1415,6 @@
                 }
             }
         }
-        window.checkAdminAuth = checkAdminAuth;
-
         async function logoutAdmin() {
             if (confirm("Are you sure you want to logout?")) {
                 try {
@@ -1427,8 +1425,16 @@
                 window.location.reload();
             }
         }
+        window.checkAdminAuth = checkAdminAuth;
         window.logoutAdmin = logoutAdmin;
 
+        document.addEventListener('DOMContentLoaded', () => {
+            // Re-bind login button just in case
+            const overlayBtn = document.querySelector('#admin-login-overlay button');
+            if (overlayBtn) {
+                overlayBtn.onclick = checkAdminAuth;
+            }
+        });
     </script>
 
     <!-- IOS INSTALL PROMPT (Admin App) -->
